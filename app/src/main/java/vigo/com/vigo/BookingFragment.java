@@ -59,9 +59,9 @@ public class BookingFragment extends Fragment implements View.OnClickListener, D
     public static final String DATEPICKER_TAG = "datepicker";
     public static final String TIMEPICKER_TAG = "timepicker";
     private TextView mHeading;
-    private Date date;
-    private Time time;
-    private APIHandler.BookApi bookApi;
+    private String date;
+    private String time;
+    private VigoApi bookApi;
     private Bundle argument;
 
 
@@ -72,7 +72,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, D
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint(Constants.BASE_URL)
                 .build();
-        bookApi = restAdapter.create(APIHandler.BookApi.class);
+        bookApi = restAdapter.create(VigoApi.class);
         argument = this.getArguments();
         mName = (TextView) rootView.findViewById(R.id.name);
         mPickUpPoint = (TextView) rootView.findViewById(R.id.pickup_point);
@@ -120,8 +120,8 @@ public class BookingFragment extends Fragment implements View.OnClickListener, D
             calendar.setTime(date1);
             mTimePicker.setText(calendar.get(Calendar.HOUR_OF_DAY)+":"+calendar.get(Calendar.MINUTE));
             mDatePicker.setText(calendar.get(Calendar.DAY_OF_MONTH)+"/"+calendar.get(Calendar.MONTH)+"/"+calendar.get(Calendar.YEAR));
-            date = new Date(calendar.get(Calendar.YEAR)-1900,calendar.get(Calendar.MONTH)-1,calendar.get(Calendar.DAY_OF_MONTH));
-            time = new Time(calendar.get(Calendar.HOUR_OF_DAY),calendar.get(Calendar.MINUTE),00);
+            date = (calendar.get(Calendar.YEAR)-1900)+"/"+(calendar.get(Calendar.MONTH)-1)+"/"+calendar.get(Calendar.DAY_OF_MONTH);
+            time = calendar.get(Calendar.HOUR_OF_DAY)+":"+calendar.get(Calendar.MINUTE)+":"+"00";
         }
         else if(argument.getBoolean(Constants.LATER)){
             mDatePicker.setOnClickListener(this);
@@ -219,12 +219,12 @@ public class BookingFragment extends Fragment implements View.OnClickListener, D
     @Override
     public void onDateSet(DatePickerDialog datePickerDialog, int year, int month, int day) {
         mDatePicker.setText(day+"/"+(month+1)+"/"+year);
-        date = new Date(year-1900,month,day);
+        date = (year-1900)+"/"+month+"/"+day;
     }
 
     @Override
     public void onTimeSet(RadialPickerLayout radialPickerLayout, int hour, int minute) {
         mTimePicker.setText(hour+":"+minute);
-        time = new Time(hour,minute,00);
+        time = hour+":"+minute+":"+"00";
     }
 }

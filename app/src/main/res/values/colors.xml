@@ -5,6 +5,7 @@
 
         <color name="actionbar">#85328C</color>
         <color name="appMain">#33334C</color>
+        <color name="appMainTransparent">#5933334c</color>
         <color name="appMainLight">#E8BF19</color>
         <color name="transperant">#00ffffff</color>
         <color name="White">#FFFFFF</color>

@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -24,6 +25,9 @@ import com.google.android.gms.maps.MapFragment;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
+import com.tuenti.smsradar.Sms;
+import com.tuenti.smsradar.SmsListener;
+import com.tuenti.smsradar.SmsRadar;
 
 
 public class MainActivity extends FragmentActivity implements DrawerLayout.DrawerListener {
@@ -35,6 +39,8 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
     private TextView mUserName;
     private Typeface mBree;
     private Typeface mComfortaa;
+    private LinearLayout mFutureRides;
+    private LinearLayout mPastRides;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,8 +75,33 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
                     .transform(transformation)
                     .into(mUserImage);
         }
+        mFutureRides = (LinearLayout) findViewById(R.id.future_rides);
+        mPastRides = (LinearLayout) findViewById(R.id.past_rides);
+        mFutureRides.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,FutureRidesActivity.class);
+                startActivity(intent);
+            }
+        });
+        mPastRides.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,PastRidesActivity.class);
+                startActivity(intent);
+            }
+        });
+       /* SmsRadar.initializeSmsRadarService(this, new SmsListener() {
+            @Override
+            public void onSmsSent(Sms sms) {
 
+            }
 
+            @Override
+            public void onSmsReceived(Sms sms) {
+
+            }
+        });*/
     }
 
 

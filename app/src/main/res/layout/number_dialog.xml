@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/material_blue_grey_950"
+    android:padding="10dp"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/mobile_number_text"
+        android:textSize="18sp"
+        android:paddingBottom="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Please enter your 10 digit mobile number."
+        android:textColor="@color/white"
+        android:layout_marginBottom="2dip" />
+
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:id="@+id/get_number_text"
+        android:textColor="@color/WhiteSmoke"
+        android:inputType="number" />
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/WhiteSmoke"/>
+
+    <TextView
+                android:id="@+id/ok_now"
+                android:layout_width="match_parent"
+                android:padding="10dp"
+                android:text="Ok"
+                android:gravity="center_horizontal"
+                android:textColor="@color/white"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dip" />
+
+
+    </LinearLayout>

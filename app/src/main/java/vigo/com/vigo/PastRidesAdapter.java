@@ -38,17 +38,17 @@ public class PastRidesAdapter extends ArrayAdapter<Book> {
         if(convertView==null){
             // inflate the layout
             LayoutInflater inflater = activity.getLayoutInflater();
-            convertView = inflater.inflate(R.layout.autocomplete_listitem, parent, false);
+            convertView = inflater.inflate(R.layout.list_item, parent, false);
         }
 
         TextView source = (TextView) convertView.findViewById(R.id.source);
         TextView destination = (TextView) convertView.findViewById(R.id.destination);
         TextView dateTV = (TextView) convertView.findViewById(R.id.date);
         TextView timeTV = (TextView) convertView.findViewById(R.id.time);
-        Date date =objects.get(position).date;
-        Time time = objects.get(position).time;
-        dateTV.setText(date.getDay()+"/"+date.getMonth()+"/"+date.getYear());
-        timeTV.setText(time.getHours()+":"+time.getMinutes());
+        String date =objects.get(position).date;
+        String time = objects.get(position).time;
+        dateTV.setText(date);
+        timeTV.setText(time);
         source.setText(objects.get(position).source);
         destination.setText(objects.get(position).destination);
         dateTV.setTypeface(mComfortaa);
