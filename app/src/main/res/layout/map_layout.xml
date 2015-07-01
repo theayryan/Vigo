@@ -1,5 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/dark_blue_borders">
 
@@ -9,129 +9,145 @@
         android:layout_above="@+id/linearLayout">
 
         <com.google.android.gms.maps.MapView
+            android:id="@+id/map_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/map_view"
-            android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_marginTop="5dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            android:layout_marginLeft="5dp" />
+            android:layout_marginTop="5dp" />
+
         <View
+            android:id="@+id/view2"
             android:layout_width="fill_parent"
             android:layout_height="1dp"
-            android:background="@color/material_blue_grey_950"
-            android:visibility="invisible"
-
             android:layout_centerInParent="true"
 
-            android:id="@+id/view2" />
+            android:background="@color/material_blue_grey_950"
+
+            android:visibility="invisible" />
 
         <ImageView
+            android:id="@+id/marker_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/marker_image"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_point_mark_on_a_circle_512"
             android:layout_above="@+id/view2"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="-16dip" />
+            android:layout_gravity="center"
+            android:layout_marginBottom="-16dip"
+            android:src="@drawable/ic_point_mark_on_a_circle_512" />
 
     </RelativeLayout>
 
     <View
+        android:id="@+id/view"
         android:layout_width="fill_parent"
         android:layout_height="6dp"
+        android:layout_above="@+id/linearLayout"
         android:background="@color/material_blue_grey_950"
-        android:id="@+id/view"
-        android:visibility="visible"
-        android:layout_above="@+id/linearLayout" />
+        android:visibility="visible" />
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_marginTop="70dip"
-        android:layout_marginRight="25dip"
         android:layout_marginLeft="25dip"
-        android:background="@drawable/searchbar_background">
+        android:layout_marginRight="25dip"
+        android:layout_marginTop="70dip"
+        android:background="@drawable/searchbar_background"
+        android:orientation="horizontal">
 
-        <AutoCompleteTextView
+        <LinearLayout
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:id="@+id/search_box"
-            android:layout_weight="1"
-            android:background="@drawable/search_inner_background"
+            android:layout_marginBottom="5dip"
             android:layout_marginLeft="5dip"
             android:layout_marginTop="5dip"
-            android:layout_marginBottom="5dip"
-            android:paddingLeft="5dip"
-            android:singleLine="true"
-            android:maxLines="1"
-            android:ellipsize="end"/>
+            android:layout_weight="1"
+            android:background="@drawable/search_inner_background"
+            android:paddingLeft="5dip">
+
+            <AutoCompleteTextView
+                android:id="@+id/search_box"
+                android:layout_width="0dip"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@color/transperant"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:singleLine="true" />
+
+            <ImageButton
+                android:id="@+id/clear"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@color/transperant"
+                android:src="@android:drawable/ic_menu_close_clear_cancel" />
+        </LinearLayout>
+
 
         <ImageView
+            android:id="@+id/search_image"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:id="@+id/search_image"
-            android:src="@android:drawable/ic_menu_search"
             android:paddingLeft="10dip"
-            android:paddingRight="10dip" />
+            android:paddingRight="10dip"
+            android:src="@android:drawable/ic_menu_search" />
     </LinearLayout>
 
     <LinearLayout
-        android:orientation="horizontal"
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="48dip"
         android:layout_alignParentBottom="true"
-        android:background="@color/appMain"
-        android:id="@+id/linearLayout"
         android:layout_marginBottom="5dip"
+        android:layout_marginLeft="5dip"
         android:layout_marginRight="5dip"
-        android:layout_marginLeft="5dip">
+        android:background="@color/appMain"
+        android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/later_button"
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:text="Later"
-            android:id="@+id/later_button"
             android:layout_weight="1"
-            android:textColor="@color/appMainLight"
             android:gravity="center"
+            android:text="Later"
+            android:textColor="@color/appMainLight"
             android:textSize="20sp" />
 
         <View
             android:layout_width="5dp"
             android:layout_height="fill_parent"
-            android:background="@color/material_blue_grey_950"
             android:layout_alignParentLeft="false"
             android:layout_alignParentStart="true"
+            android:background="@color/material_blue_grey_950"
 
             android:visibility="visible"></View>
 
 
         <TextView
+            android:id="@+id/now_button"
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:text="Now"
-            android:id="@+id/now_button"
             android:layout_weight="1"
-            android:textColor="@color/appMainLight"
             android:gravity="center"
+            android:text="Now"
+            android:textColor="@color/appMainLight"
             android:textSize="20sp" />
     </LinearLayout>
 
     <Button
+        android:id="@+id/confirm_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Confirm"
-        android:id="@+id/confirm_button"
         android:layout_above="@+id/linearLayout"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="25dip"
         android:background="@drawable/searchbar_background"
+        android:padding="5dip"
+        android:text="Confirm"
         android:textColor="@color/appMain"
-        android:textSize="16sp"
-        android:padding="5dip" />
+        android:textSize="16sp" />
 </RelativeLayout>
