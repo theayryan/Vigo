@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -227,7 +228,40 @@ public class BookingFragment extends Fragment implements View.OnClickListener, D
                         }
                 );
                 break;
-
+            case R.id.ride_share:
+                String autoMode = getModeofTransport(mGroup.getCheckedRadioButtonId());
+                if (TextUtils.isEmpty(autoMode)) {
+                    Toast.makeText(mActivity, "Please choose a mode of transport", Toast.LENGTH_LONG).show();
+                    break;
+                }
+                if (TextUtils.isEmpty(date)) {
+                    Toast.makeText(mActivity, "Please pick a date", Toast.LENGTH_LONG).show();
+                    break;
+                }
+                if (TextUtils.isEmpty(time)) {
+                    Toast.makeText(mActivity, "Please pick a time", Toast.LENGTH_LONG).show();
+                    break;
+                }
+                Bundle arguments = new Bundle();
+                Book args = new Book();
+                args.source = mPickUpPoint.getText().toString();
+                args.destination = mDropPoint.getText().toString();
+                args.date = date;
+                args.time = time;
+                args.customer_id = "46151218";
+                args.vehical_type = autoMode;
+                args.source_lat = Double.toString(argument.getDouble(Constants.SOURCE_LAT));
+                args.source_lng = Double.toString(argument.getDouble(Constants.SOURCE_LON));
+                args.destination_lat = Double.toString(argument.getDouble(Constants.DEST_LAT));
+                args.destination_lng = Double.toString(argument.getDouble(Constants.DEST_LON));
+                arguments.putSerializable(Constants.DATA, args);
+                RideShareOptions shareFragment = new RideShareOptions();
+                shareFragment.setArguments(arguments);
+                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.maps_fragment, shareFragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+                break;
         }
     }
 

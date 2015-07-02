@@ -1,12 +1,13 @@
 package vigo.com.vigo;
 
-import java.sql.Date;
-import java.sql.Time;
+import java.io.Serializable;
 
 /**
  * Created by ayushb on 25/6/15.
  */
-public class Book{
+public class Book implements Serializable {
+
+    private static final long serialVersionUID = 7526471155622776147L;
     int trip_id;
     String source;
     String destination;
