@@ -1,8 +1,10 @@
 package vigo.com.vigo;
 
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
@@ -23,6 +25,7 @@ public class PastRidesActivity extends ActionBarActivity {
     private PastRidesAdapter mPastRidesAdapter;
     private TextView mNoRides;
     private Typeface mBree;
+    private SharedPreferences pref;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -30,6 +33,7 @@ public class PastRidesActivity extends ActionBarActivity {
         setContentView(R.layout.rides_layout);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.appMain)));
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
         mMyRides = (ListView) findViewById(R.id.rides_listView);
         mMyRides.setDividerHeight(0);
         mNoRides = (TextView) findViewById(R.id.no_rides);
@@ -40,7 +44,7 @@ public class PastRidesActivity extends ActionBarActivity {
                 .setEndpoint(Constants.BASE_URL)
                 .build();
         ridesApi = restAdapter.create(VigoApi.class);
-        ridesApi.getPastRides("46151218", new Callback<RidesClass>() {
+        ridesApi.getPastRides(pref.getString(Constants.AUTH_TOKEN, ""), new Callback<RidesClass>() {
             @Override
             public void success(RidesClass rides, Response response) {
                 if(rides.ride!=null&&rides.ride.size()>0) {

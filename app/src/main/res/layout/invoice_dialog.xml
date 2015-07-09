@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:background="@color/DarkGray"
+              android:gravity="center"
+              android:orientation="vertical"
+              android:padding="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/actual_fare_value"
+                android:layout_width="wrap_content"
+
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dip"
+                android:drawableLeft="@drawable/ic_rupee"
+                android:gravity="right"
+                android:paddingBottom="5dp"
+                android:text="365"
+                android:textColor="@color/appMain"
+                android:textSize="30sp"/>
+
+            <TextView
+                android:id="@+id/actual_fare"
+                android:layout_width="wrap_content"
+
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dip"
+                android:paddingBottom="5dp"
+                android:text="Actual Fare"
+                android:textColor="@color/appMain"
+
+                android:textSize="16sp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/discount_value"
+                android:layout_width="wrap_content"
+
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dip"
+                android:gravity="right"
+                android:paddingBottom="5dp"
+                android:text="365"
+                android:textColor="@color/appMain"
+                android:textSize="30sp"/>
+
+            <TextView
+                android:id="@+id/discount_given"
+                android:layout_width="wrap_content"
+
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dip"
+                android:paddingBottom="5dp"
+                android:text="Discount"
+                android:textColor="@color/appMain"
+
+                android:textSize="16sp"/>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+
+            <TextView
+                android:id="@+id/total_value"
+                android:layout_width="wrap_content"
+
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dip"
+                android:drawableLeft="@drawable/ic_rupee"
+                android:gravity="right"
+                android:paddingBottom="5dp"
+                android:text="365"
+                android:textColor="@color/appMain"
+                android:textSize="30sp"/>
+
+            <TextView
+                android:id="@+id/total_fare"
+                android:layout_width="wrap_content"
+
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dip"
+                android:paddingBottom="5dp"
+                android:text="Total Fare"
+                android:textColor="@color/appMain"
+
+                android:textSize="16sp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+
+            <TextView
+                android:id="@+id/estimated_time_value"
+                android:layout_width="wrap_content"
+
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dip"
+                android:gravity="right"
+                android:paddingBottom="5dp"
+                android:text="365"
+                android:textColor="@color/appMain"
+                android:textSize="30sp"/>
+
+            <TextView
+                android:id="@+id/estimated_time"
+                android:layout_width="wrap_content"
+
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dip"
+                android:gravity="center"
+                android:paddingBottom="5dp"
+                android:text="Estimated Time Taken"
+                android:textColor="@color/appMain"
+                android:textSize="16sp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/WhiteSmoke"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/confirm"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dip"
+            android:layout_weight="1"
+            android:background="@drawable/numpad_background"
+            android:gravity="center"
+            android:text="Confirm"
+            android:textColor="@color/appMain"
+            android:textSize="16sp"/>
+
+        <View
+            android:layout_width="2dip"
+            android:layout_height="match_parent"
+            android:layout_marginTop="5dip"
+            android:background="@color/WhiteSmoke"/>
+
+        <Button
+            android:id="@+id/cancel"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dip"
+            android:layout_weight="1"
+            android:background="@drawable/numpad_background"
+            android:gravity="center"
+            android:text="Cancel"
+            android:textColor="@color/appMain"
+            android:textSize="16sp"/>
+
+
+    </LinearLayout>
+
+
+</LinearLayout>

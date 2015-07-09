@@ -1,16 +1,12 @@
 package vigo.com.vigo;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentTransaction;
 import android.graphics.Typeface;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-
-import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,14 +16,12 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.*;
-import com.google.android.gms.maps.MapFragment;
+import com.crashlytics.android.Crashlytics;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
-import com.tuenti.smsradar.Sms;
-import com.tuenti.smsradar.SmsListener;
-import com.tuenti.smsradar.SmsRadar;
+
+import io.fabric.sdk.android.Fabric;
 
 
 public class MainActivity extends FragmentActivity implements DrawerLayout.DrawerListener {
@@ -45,6 +39,7 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerElementsContainer = findViewById(R.id.drawer_root_layout);
@@ -91,17 +86,7 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
                 startActivity(intent);
             }
         });
-       /* SmsRadar.initializeSmsRadarService(this, new SmsListener() {
-            @Override
-            public void onSmsSent(Sms sms) {
 
-            }
-
-            @Override
-            public void onSmsReceived(Sms sms) {
-
-            }
-        });*/
     }
 
 

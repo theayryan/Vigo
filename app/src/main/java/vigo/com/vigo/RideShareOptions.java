@@ -64,6 +64,8 @@ public class RideShareOptions extends Fragment implements View.OnClickListener, 
                 args.source_lng,
                 args.destination_lat,
                 args.destination_lng,
+                args.distance,
+                args.time_taken,
                 new Callback<RidesClass>() {
                     @Override
                     public void success(RidesClass ridesClass, Response response) {
@@ -106,6 +108,8 @@ public class RideShareOptions extends Fragment implements View.OnClickListener, 
                         args.source_lng,
                         args.destination_lat,
                         args.destination_lng,
+                        args.distance,
+                        args.time_taken,
                         new Callback<Response>() {
                             @Override
                             public void success(Response response, Response response2) {

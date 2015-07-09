@@ -20,5 +20,8 @@ public class Book implements Serializable {
     String source_lng;
     String destination_lat;
     String destination_lng;
+    String distance;
+    String time_taken;
+    String type;
 }
 

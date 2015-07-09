@@ -1,26 +1,20 @@
 package vigo.com.vigo;
 
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
-import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import java.text.DateFormat;
-import java.util.List;
 
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-import retrofit.converter.GsonConverter;
 
 /**
  * Created by ayushb on 29/6/15.
@@ -31,6 +25,7 @@ public class FutureRidesActivity extends ActionBarActivity {
     private FutureRidesAdapter mFutureRidesAdapter;
     private TextView mNoRides;
     private Typeface mBree;
+    private SharedPreferences pref;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -38,6 +33,7 @@ public class FutureRidesActivity extends ActionBarActivity {
         setContentView(R.layout.rides_layout);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.appMain)));
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
         mMyRides = (ListView) findViewById(R.id.rides_listView);
         mNoRides = (TextView) findViewById(R.id.no_rides);
         mNoRides.setText("No Future Rides Booked");
@@ -48,7 +44,7 @@ public class FutureRidesActivity extends ActionBarActivity {
                 .setEndpoint(Constants.BASE_URL)
                 .build();
         ridesApi = restAdapter.create(VigoApi.class);
-        ridesApi.getFutureRides("46151218", new Callback<RidesClass>() {
+        ridesApi.getFutureRides(pref.getString(Constants.AUTH_TOKEN, ""), new Callback<RidesClass>() {
             @Override
             public void success(RidesClass rides, Response response) {
                 if(rides.ride!=null&&rides.ride.size()>0) {

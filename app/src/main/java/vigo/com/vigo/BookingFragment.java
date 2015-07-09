@@ -1,6 +1,8 @@
 package vigo.com.vigo;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -25,10 +27,18 @@ import com.google.android.gms.maps.model.LatLng;
 import com.sleepbot.datetimepicker.time.RadialPickerLayout;
 import com.sleepbot.datetimepicker.time.TimePickerDialog;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import retrofit.Callback;
 import retrofit.RestAdapter;
@@ -38,7 +48,7 @@ import retrofit.client.Response;
 /**
  * Created by ayushb on 22/6/15.
  */
-public class BookingFragment extends Fragment implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
+public class BookingFragment extends Fragment implements View.OnClickListener, InvoiceDialog.InvoiceInterface, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
     public static final String DATEPICKER_TAG = "datepicker";
     public static final String TIMEPICKER_TAG = "timepicker";
@@ -64,15 +74,34 @@ public class BookingFragment extends Fragment implements View.OnClickListener, D
     private Bundle argument;
     private TextView mModeTransport;
     private RadioGroup mGroup;
+    private InvoiceDialog invoiceDialog;
+    private String durationValue;
+    private int distanceValue;
+    private boolean BOOK_PRESSED = false;
+    private ProgressDialog mPDialog;
+    private SharedPreferences pref;
 
+    public void showProgressDialog() {
+        if (mPDialog == null) {
+            mPDialog = new ProgressDialog(mActivity);
+            mPDialog.setMessage("Fetching");
+            mPDialog.show();
+        } else if (!mPDialog.isShowing()) {
+            mPDialog.setMessage("Fetching");
+            mPDialog.show();
+        }
+        mPDialog.setCancelable(true);
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.booking_details_layout, container, false);
+        pref = PreferenceManager.getDefaultSharedPreferences(mActivity);
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint(Constants.BASE_URL)
                 .build();
+        restAdapter.setLogLevel(RestAdapter.LogLevel.FULL);
         bookApi = restAdapter.create(VigoApi.class);
         argument = this.getArguments();
         mGroup = (RadioGroup) rootView.findViewById(R.id.radiogroup);
@@ -123,8 +152,8 @@ public class BookingFragment extends Fragment implements View.OnClickListener, D
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date1);
             mTimePicker.setText(calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE));
-            mDatePicker.setText(calendar.get(Calendar.DAY_OF_MONTH) + "/" + calendar.get(Calendar.MONTH) + "/" + calendar.get(Calendar.YEAR));
-            date = (calendar.get(Calendar.YEAR) - 1900) + "/" + (calendar.get(Calendar.MONTH) - 1) + "/" + calendar.get(Calendar.DAY_OF_MONTH);
+            mDatePicker.setText(calendar.get(Calendar.DAY_OF_MONTH) + "/" + (calendar.get(Calendar.MONTH) + 1) + "/" + calendar.get(Calendar.YEAR));
+            date = (calendar.get(Calendar.YEAR)) + "/" + (calendar.get(Calendar.MONTH) + 1) + "/" + calendar.get(Calendar.DAY_OF_MONTH);
             time = calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE) + ":" + "00";
         } else if (argument.getBoolean(Constants.LATER)) {
             mDatePicker.setOnClickListener(this);
@@ -166,103 +195,211 @@ public class BookingFragment extends Fragment implements View.OnClickListener, D
                             TimePickerDialog.newInstance(this,
                                     calendar.get(Calendar.HOUR_OF_DAY),
                                     calendar.get(Calendar.MINUTE), true, false);
+
                     timePickerDialog.show(getChildFragmentManager(), TIMEPICKER_TAG);
                 }
                 break;
             case R.id.Book:
-                String mode = getModeofTransport(mGroup.getCheckedRadioButtonId());
-                if (TextUtils.isEmpty(mode)) {
-                    Toast.makeText(mActivity, "Please choose a mode of transport", Toast.LENGTH_LONG).show();
-                    break;
-                }
-                if (TextUtils.isEmpty(date)) {
-                    Toast.makeText(mActivity, "Please pick a date", Toast.LENGTH_LONG).show();
-                    break;
-                }
-                if (TextUtils.isEmpty(time)) {
-                    Toast.makeText(mActivity, "Please pick a time", Toast.LENGTH_LONG).show();
-                    break;
-                }
-                bookApi.makeBooking(
-                        mPickUpPoint.getText().toString(),
-                        mDropPoint.getText().toString(),
-                        date,
-                        time,
-                        mode,
-                        "46151218",
-                        Double.toString(argument.getDouble(Constants.SOURCE_LAT)),
-                        Double.toString(argument.getDouble(Constants.SOURCE_LON)),
-                        Double.toString(argument.getDouble(Constants.DEST_LAT)),
-                        Double.toString(argument.getDouble(Constants.DEST_LON)),
-                        new Callback<Response>() {
-                            @Override
-                            public void success(Response s, Response response) {
-                                BufferedReader reader = null;
-                                StringBuilder sb = new StringBuilder();
-                                try {
-
-                                    reader = new BufferedReader(new InputStreamReader(s.getBody().in()));
-
-                                    String line;
-
-                                    try {
-                                        while ((line = reader.readLine()) != null) {
-                                            sb.append(line);
-                                        }
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-
-
-                                String result = sb.toString();
-                                Log.d("Response", result);
-                            }
-
-                            @Override
-                            public void failure(RetrofitError error) {
-                                error.printStackTrace();
-                            }
-                        }
-                );
+                BOOK_PRESSED = true;
+                sendDistance();
+                showProgressDialog();
                 break;
             case R.id.ride_share:
-                String autoMode = getModeofTransport(mGroup.getCheckedRadioButtonId());
-                if (TextUtils.isEmpty(autoMode)) {
-                    Toast.makeText(mActivity, "Please choose a mode of transport", Toast.LENGTH_LONG).show();
-                    break;
-                }
-                if (TextUtils.isEmpty(date)) {
-                    Toast.makeText(mActivity, "Please pick a date", Toast.LENGTH_LONG).show();
-                    break;
-                }
-                if (TextUtils.isEmpty(time)) {
-                    Toast.makeText(mActivity, "Please pick a time", Toast.LENGTH_LONG).show();
-                    break;
-                }
-                Bundle arguments = new Bundle();
-                Book args = new Book();
-                args.source = mPickUpPoint.getText().toString();
-                args.destination = mDropPoint.getText().toString();
-                args.date = date;
-                args.time = time;
-                args.customer_id = "46151218";
-                args.vehical_type = autoMode;
-                args.source_lat = Double.toString(argument.getDouble(Constants.SOURCE_LAT));
-                args.source_lng = Double.toString(argument.getDouble(Constants.SOURCE_LON));
-                args.destination_lat = Double.toString(argument.getDouble(Constants.DEST_LAT));
-                args.destination_lng = Double.toString(argument.getDouble(Constants.DEST_LON));
-                arguments.putSerializable(Constants.DATA, args);
-                RideShareOptions shareFragment = new RideShareOptions();
-                shareFragment.setArguments(arguments);
-                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.maps_fragment, shareFragment);
-                transaction.addToBackStack(null);
-                transaction.commit();
+                BOOK_PRESSED = false;
+                sendDistance();
                 break;
         }
+    }
+
+    public void sendRideShare() {
+        String autoMode = getModeofTransport(mGroup.getCheckedRadioButtonId());
+        if (TextUtils.isEmpty(autoMode)) {
+            Toast.makeText(mActivity, "Please choose a mode of transport", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (TextUtils.isEmpty(date)) {
+            Toast.makeText(mActivity, "Please pick a date", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (TextUtils.isEmpty(time)) {
+            Toast.makeText(mActivity, "Please pick a time", Toast.LENGTH_LONG).show();
+            return;
+        }
+        Bundle arguments = new Bundle();
+        Book args = new Book();
+        args.source = mPickUpPoint.getText().toString();
+        args.destination = mDropPoint.getText().toString();
+        args.date = date;
+        args.time = time;
+        args.customer_id = pref.getString(Constants.AUTH_TOKEN, "");
+        args.vehical_type = autoMode;
+        args.source_lat = Double.toString(argument.getDouble(Constants.SOURCE_LAT));
+        args.source_lng = Double.toString(argument.getDouble(Constants.SOURCE_LON));
+        args.destination_lat = Double.toString(argument.getDouble(Constants.DEST_LAT));
+        args.destination_lng = Double.toString(argument.getDouble(Constants.DEST_LON));
+        args.distance = Integer.toString(distanceValue);
+        args.time_taken = durationValue;
+        arguments.putSerializable(Constants.DATA, args);
+        RideShareOptions shareFragment = new RideShareOptions();
+        shareFragment.setArguments(arguments);
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.maps_fragment, shareFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    public void sendDistance() {
+        RestAdapter restAdapterDistance = new RestAdapter.Builder()
+                .setEndpoint(Constants.DISTANCE_MATRIX)
+                .build();
+        restAdapterDistance.setLogLevel(RestAdapter.LogLevel.FULL);
+        VigoApi distanceApi = restAdapterDistance.create(VigoApi.class);
+        distanceApi.getDistance(
+                Double.toString(argument.getDouble(Constants.SOURCE_LAT)) + "," + Double.toString(argument.getDouble(Constants.SOURCE_LON)),
+                Double.toString(argument.getDouble(Constants.DEST_LAT)) + "," + Double.toString(argument.getDouble(Constants.DEST_LON)),
+                getTime(),
+                "AIzaSyDs3G3hyG-CqTYizlQF3a-khTVAJ3E52VA",
+                new Callback<Response>() {
+                    @Override
+                    public void success(Response response, Response response2) {
+                        BufferedReader reader = null;
+                        StringBuilder sb = new StringBuilder();
+                        try {
+
+                            reader = new BufferedReader(new InputStreamReader(response.getBody().in()));
+
+                            String line;
+
+                            try {
+                                while ((line = reader.readLine()) != null) {
+                                    sb.append(line);
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        String result = sb.toString();
+                        Log.d("Response", result);
+                        try {
+
+                            if (BOOK_PRESSED == true) {
+                                getDistancefromResponse(result);
+                            } else {
+                                getDistanceRideShare(result);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        error.printStackTrace();
+                        //Toast.makeText(getApplicationContext(),"Some Error Occurred. Please Try Again.",Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+    }
+
+    public void getDistanceRideShare(String response) throws JSONException {
+        if (mPDialog.isShowing()) {
+            mPDialog.dismiss();
+        }
+        JSONObject responseJson = new JSONObject(response);
+        JSONArray rows = responseJson.getJSONArray("rows");
+        JSONObject element = rows.getJSONObject(0);
+        JSONArray elementsArray = element.getJSONArray("elements");
+        JSONObject element1 = elementsArray.getJSONObject(0);
+        JSONObject distanceObject = element1.getJSONObject("distance");
+        distanceValue = distanceObject.getInt("value");
+        JSONObject durationObject = element1.getJSONObject("duration");
+        durationValue = durationObject.getString("text");
+        sendRideShare();
+    }
+
+    public void getDistancefromResponse(String response) throws JSONException {
+
+        JSONObject responseJson = new JSONObject(response);
+        JSONArray rows = responseJson.getJSONArray("rows");
+        JSONObject element = rows.getJSONObject(0);
+        JSONArray elementsArray = element.getJSONArray("elements");
+        JSONObject element1 = elementsArray.getJSONObject(0);
+        JSONObject distanceObject = element1.getJSONObject("distance");
+        distanceValue = distanceObject.getInt("value");
+        JSONObject durationObject = element1.getJSONObject("duration");
+        durationValue = durationObject.getString("text");
+        bookApi.bulkFare(
+                distanceValue / 1000 + "",
+                new Callback<Response>() {
+                    @Override
+                    public void success(Response response, Response response2) {
+                        BufferedReader reader = null;
+                        StringBuilder sb = new StringBuilder();
+                        try {
+
+                            reader = new BufferedReader(new InputStreamReader(response.getBody().in()));
+
+                            String line;
+
+                            try {
+                                while ((line = reader.readLine()) != null) {
+                                    sb.append(line);
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        String result = sb.toString();
+                        Log.d("Response", result);
+                        if (result.contains("false")) {
+                            try {
+                                if (mPDialog.isShowing()) {
+                                    mPDialog.dismiss();
+                                }
+                                JSONObject responseJson = new JSONObject(result);
+                                String actual = responseJson.getString("actual");
+                                String discount = responseJson.getString("discount");
+                                String fare = responseJson.getString("fare");
+
+                                invoiceDialog = InvoiceDialog.getInstance(actual, fare, discount, durationValue);
+                                invoiceDialog.setTargetFragment(BookingFragment.this, 0);
+                                invoiceDialog.setCancelable(false);
+                                invoiceDialog.show(mActivity.getSupportFragmentManager(), "InvoiceDialog");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                Toast.makeText(mActivity, "Some Problem Occurred", Toast.LENGTH_SHORT).show();
+                                if (mPDialog.isShowing()) {
+                                    mPDialog.dismiss();
+                                }
+                            }
+
+                        } else {
+                            Toast.makeText(mActivity, "Some Problem Occurred", Toast.LENGTH_SHORT).show();
+                            if (mPDialog.isShowing()) {
+                                mPDialog.dismiss();
+                            }
+                        }
+
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        error.printStackTrace();
+                        if (mPDialog.isShowing()) {
+                            mPDialog.dismiss();
+                        }
+                        Toast.makeText(mActivity, "Some Error Occurred. Please Try Again.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
     }
 
     private String getModeofTransport(int checkedRadioButtonId) {
@@ -276,16 +413,104 @@ public class BookingFragment extends Fragment implements View.OnClickListener, D
             return null;
     }
 
+    public int getTime() {
+        DateFormat df = new SimpleDateFormat("yyyy/M/d HH:m:s");
+        try {
+            Date myDate = df.parse(date + " " + time);
+            return (int) myDate.getTime() / 1000;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
 
     @Override
     public void onDateSet(DatePickerDialog datePickerDialog, int year, int month, int day) {
         mDatePicker.setText(day + "/" + (month + 1) + "/" + year);
-        date = (year - 1900) + "/" + month + "/" + day;
+        date = (year) + "/" + (month + 1) + "/" + day;
     }
 
     @Override
     public void onTimeSet(RadialPickerLayout radialPickerLayout, int hour, int minute) {
         mTimePicker.setText(hour + ":" + minute);
         time = hour + ":" + minute + ":" + "00";
+    }
+
+    @Override
+    public void confirmBooking() {
+        if (invoiceDialog.isVisible()) {
+            invoiceDialog.dismiss();
+        }
+        String mode = getModeofTransport(mGroup.getCheckedRadioButtonId());
+        if (TextUtils.isEmpty(mode)) {
+            Toast.makeText(mActivity, "Please choose a mode of transport", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (TextUtils.isEmpty(date)) {
+            Toast.makeText(mActivity, "Please pick a date", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (TextUtils.isEmpty(time)) {
+            Toast.makeText(mActivity, "Please pick a time", Toast.LENGTH_LONG).show();
+            return;
+        }
+        bookApi.makeBooking(
+                mPickUpPoint.getText().toString(),
+                mDropPoint.getText().toString(),
+                date,
+                time,
+                mode,
+                pref.getString(Constants.AUTH_TOKEN, ""),
+                Double.toString(argument.getDouble(Constants.SOURCE_LAT)),
+                Double.toString(argument.getDouble(Constants.SOURCE_LON)),
+                Double.toString(argument.getDouble(Constants.DEST_LAT)),
+                Double.toString(argument.getDouble(Constants.DEST_LON)),
+                Integer.toString(distanceValue),
+                durationValue,
+                new Callback<Response>() {
+                    @Override
+                    public void success(Response s, Response response) {
+                        BufferedReader reader = null;
+                        StringBuilder sb = new StringBuilder();
+                        try {
+
+                            reader = new BufferedReader(new InputStreamReader(s.getBody().in()));
+
+                            String line;
+
+                            try {
+                                while ((line = reader.readLine()) != null) {
+                                    sb.append(line);
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        String result = sb.toString();
+                        Log.d("Response", result);
+                        if (result.contains("false")) {
+                            Toast.makeText(mActivity, "Booking Successful", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(mActivity, FutureRidesActivity.class);
+                            startActivity(intent);
+                            mActivity.finish();
+                        }
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        error.printStackTrace();
+                    }
+                }
+        );
+    }
+
+    @Override
+    public void cancel() {
+
     }
 }

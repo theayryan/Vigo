@@ -3,12 +3,11 @@ package vigo.com.vigo;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -16,12 +15,10 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -33,30 +30,22 @@ import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
 import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Type;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.math.BigInteger;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.GeneralSecurityException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Random;
-import java.util.TimeZone;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-
-import static vigo.com.vigo.LoginScreen.TOTP.generateTOTP;
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 /**
  * Created by ayushb on 26/6/15.
@@ -67,7 +56,8 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
     // Logcat tag
     private static final String TAG = "LoginScreen";
 
-    private static final String SCOPE = "oauth2:https://www.googleapis.com/auth/userinfo.profile";
+    private static final String SCOPE = "oauth2:https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email";
+    private static final int REQUEST_RECOVER = 1001;
     private static JSONObject PROFILE_DATA;
     AccountManager mAccountManager;
     String token;
@@ -84,6 +74,8 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
     private GoogleCloudMessaging gcm;
     private String regid;
     private NumberDialogFragment numberDialogFragment;
+    private VigoApi registerApi;
+    private String AUTH_TOKEN;
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
@@ -119,6 +111,13 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
                 names[i] = accounts[i].name;
         }
         return names;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_RECOVER) {
+            syncGoogleAccount();
+        }
     }
 
     private GetNameInForeground getTask(LoginScreen activity, String email,
@@ -186,6 +185,8 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
                 String personPhotoUrl = null;
 
                 String email = null;
+                if (PROFILE_DATA.has("email"))
+                    email = PROFILE_DATA.getString("email");
             if (PROFILE_DATA.has("picture")) {
                     personPhotoUrl = PROFILE_DATA.getString("picture");
                 }
@@ -200,6 +201,7 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
                         .putString(Constants.USER_PIC, personPhotoUrl)
                         .putBoolean(Constants.IS_LOGGED_IN, true)
                         .putString(Constants.GCM_REG_ID,regid)
+                        .putString(Constants.AUTH_TOKEN, AUTH_TOKEN)
                         .commit();
 
                 if(mDialog.isShowing()){
@@ -211,8 +213,8 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
                 numberDialogFragment.show(getSupportFragmentManager(),"NumberDialogFragment");
 
             } else {
-                Toast.makeText(getApplicationContext(),
-                        "Person information is null", Toast.LENGTH_LONG).show();
+               /* Toast.makeText(getApplicationContext(),
+                        "Person information is null", Toast.LENGTH_LONG).show();*/
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -235,14 +237,104 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
             String user_number = number;
             pref.edit().putString(Constants.USER_NUMBER,user_number).commit();
 
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-            this.finish();
+            RestAdapter restAdapter = new RestAdapter.Builder()
+                    .setEndpoint(Constants.BASE_URL)
+                    .build();
+            restAdapter.setLogLevel(RestAdapter.LogLevel.FULL);
+            registerApi = restAdapter.create(VigoApi.class);
+            registerApi.register(
+                    regid,
+                    pref.getString(Constants.AUTH_TOKEN, ""),
+                    pref.getString(Constants.USER_NAME, ""),
+                    number,
+                    pref.getString(Constants.USER_EMAIL, ""),
+                    new Callback<Response>() {
+                        @Override
+                        public void success(Response response, Response response2) {
+                            BufferedReader reader = null;
+                            StringBuilder sb = new StringBuilder();
+                            try {
+
+                                reader = new BufferedReader(new InputStreamReader(response.getBody().in()));
+
+                                String line;
+
+                                try {
+                                    while ((line = reader.readLine()) != null) {
+                                        sb.append(line);
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+
+                            String result = sb.toString();
+                            Log.d("Response", result);
+                            if (result.contains("UNSUCCESSFUL")) {
+                                Toast.makeText(getApplicationContext(), "Some Error Occurred. Please Try Again.", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Intent intent = new Intent(LoginScreen.this, MainActivity.class);
+                                startActivity(intent);
+                                LoginScreen.this.finish();
+                            }
+                        }
+
+                        @Override
+                        public void failure(RetrofitError error) {
+                            error.printStackTrace();
+                            Toast.makeText(getApplicationContext(), "Some Error Occurred. Please Try Again.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+            );
+
         }
 
 
     }
 
+    public void getRegId() {
+        new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... params) {
+                String msg = "";
+                try {
+                    if (gcm == null) {
+                        gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
+                    }
+                    regid = gcm.register(Constants.GCM_PROJECT_NUMBER);
+                    msg = "Device registered, registration ID=" + regid;
+                    Log.i("GCM", msg);
+
+                } catch (IOException ex) {
+                    msg = "Error :" + ex.getMessage();
+
+                }
+                return msg;
+            }
+
+            @Override
+            protected void onPostExecute(String msg) {
+                getProfileInformation();
+            }
+        }.execute(null, null, null);
+    }
+
+    public static class CallbackReceiver extends BroadcastReceiver {
+        public static final String TAG = "CallbackReceiver";
+
+        @Override
+        public void onReceive(Context context, Intent callback) {
+            Bundle extras = callback.getExtras();
+            Intent intent = new Intent(context, LoginScreen.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtras(extras);
+            Log.i(TAG, "Received broadcast. Resurrecting activity");
+            context.startActivity(intent);
+        }
+    }
 
     public abstract class AbstractGetNameTask extends AsyncTask<Void, Void, Void> {
         private static final String TAG = "TokenInfoTask";
@@ -318,7 +410,7 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
             mActivity.finish();*/
 
                 LoginScreen.PROFILE_DATA = new JSONObject(this.GOOGLE_USER_DATA);
-
+                AUTH_TOKEN = token;
                 return;
             } else if (sc == 401) {
                 GoogleAuthUtil.invalidateToken(mActivity, token);
@@ -366,7 +458,7 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
             } catch (UserRecoverableAuthException userRecoverableException) {
                 // Unable to authenticate, but the user can fix this.
                 // Forward the user to the appropriate activity.
-                mActivity.startActivityForResult(userRecoverableException.getIntent(), mRequestCode);
+                mActivity.startActivityForResult(userRecoverableException.getIntent(), REQUEST_RECOVER);
             } catch (GoogleAuthException fatalException) {
                 onError("Unrecoverable error " + fatalException.getMessage(), fatalException);
             }
@@ -374,204 +466,6 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
         }
     }
 
-    public void getRegId(){
-        new AsyncTask<Void, Void, String>() {
-            @Override
-            protected String doInBackground(Void... params) {
-                String msg = "";
-                try {
-                    if (gcm == null) {
-                        gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
-                    }
-                    regid = gcm.register(Constants.GCM_PROJECT_NUMBER);
-                    msg = "Device registered, registration ID=" + regid;
-                    Log.i("GCM",  msg);
 
-                } catch (IOException ex) {
-                    msg = "Error :" + ex.getMessage();
-
-                }
-                return msg;
-            }
-
-            @Override
-            protected void onPostExecute(String msg) {
-                getProfileInformation();
-            }
-        }.execute(null, null, null);
-    }
-
-    public static class TOTP {
-
-        private TOTP() {}
-
-        /**
-         * This method uses the JCE to provide the crypto algorithm.
-         * HMAC computes a Hashed Message Authentication Code with the
-         * crypto hash algorithm as a parameter.
-         *
-         * @param crypto: the crypto algorithm (HmacSHA1, HmacSHA256,
-         *                             HmacSHA512)
-         * @param keyBytes: the bytes to use for the HMAC key
-         * @param text: the message or text to be authenticated
-         */
-        protected static byte[] hmac_sha(String crypto, byte[] keyBytes, byte[] text){
-            try {
-
-                Mac hmac;
-                hmac = Mac.getInstance(crypto);
-
-
-                SecretKeySpec macKey = new SecretKeySpec(keyBytes, "RAW");
-                hmac.init(macKey);
-                return hmac.doFinal(text);
-
-            } catch (GeneralSecurityException gse) {
-                throw new UndeclaredThrowableException(gse);
-            }
-        }
-
-
-        /**
-         * This method converts a HEX string to Byte[]
-         *
-         * @param hex: the HEX string
-         *
-         * @return: a byte array
-         */
-
-        private static byte[] hexStr2Bytes(String hex){
-            // Adding one byte to get the right conversion
-            // Values starting with "0" can be converted
-            byte[] bArray = new BigInteger("10" + hex,16).toByteArray();
-
-            // Copy all the REAL bytes, not the "first"
-            byte[] ret = new byte[bArray.length - 1];
-            for (int i = 0; i < ret.length; i++)
-                ret[i] = bArray[i+1];
-            return ret;
-        }
-
-        private static final int[] DIGITS_POWER
-                // 0 1  2   3    4     5      6       7        8
-                = {1,10,100,1000,10000,100000,1000000,10000000,100000000 };
-
-
-
-        /**
-         * This method generates a TOTP value for the given
-         * set of parameters.
-         *
-         * @param key: the shared secret, HEX encoded
-         * @param time: a value that reflects a time
-         * @param returnDigits: number of digits to return
-         *
-         * @return: a numeric String in base 10 that includes
-         */  //            {@link truncationDigits} digits
-        //*
-
-        public static String generateTOTP(String key, String time, String returnDigits){
-
-            return generateTOTP(key, time, returnDigits, "HmacSHA1");
-
-        }
-
-
-        /**
-         * This method generates a TOTP value for the given
-         * set of parameters.
-         *
-         * @param key: the shared secret, HEX encoded
-         * @param time: a value that reflects a time
-         * @param returnDigits: number of digits to return
-         * @param crypto: the crypto function to use
-         *
-         * @return: a numeric String in base 10 that includes
-         */ //             {@link truncationDigits} digits
-        //*
-
-        public static String generateTOTP(String key, String time, String returnDigits, String crypto){
-
-            int codeDigits = Integer.decode(returnDigits).intValue();
-
-            String result = null;
-
-            // Using the counter
-            // First 8 bytes are for the movingFactor
-            // Compliant with base RFC 4226 (HOTP)
-
-            Log.d(TAG, time);
-
-            while (time.length() < 16 )
-                time = "0" + time;
-
-            Log.d(TAG, time);
-            Log.d(TAG, key);
-
-            // Get the HEX in a Byte[]
-            byte[] msg = hexStr2Bytes(time);
-
-
-
-            byte[] k = hexStr2Bytes(key);
-
-
-
-
-
-            byte[] hash = hmac_sha(crypto, k, msg);
-
-            // put selected bytes into result int
-            int offset = hash[hash.length - 1] & 0xf;
-
-            int binary = ((hash[offset] & 0x7f) << 24) | ((hash[offset + 1] & 0xff) << 16) | ((hash[offset + 2] & 0xff) << 8) | (hash[offset + 3] & 0xff);
-
-            int otp = binary % DIGITS_POWER[codeDigits];
-
-            result = Integer.toString(otp);
-            while (result.length() < codeDigits) {
-                result = "0" + result;
-            }
-            return result;
-        }
-
-    }
-
-    public void function(){
-
-
-        // Seed for HMAC-SHA1 - 20 bytes
-        String seed = "3132333435363738393031323334353637383930";
-
-
-        long T0 = 0;
-        long X = 30;
-        long testTime[] = {59L, 1111111109L, 1111111111L, 1234567890L, 2000000000L, 20000000000L};
-
-        String steps = "0";
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        df.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-
-        for (int i=0; i<testTime.length; i++) {
-
-            long T = (testTime[i] - T0)/X;
-            steps = Long.toHexString(T).toUpperCase();
-
-            //Toast.makeText(getApplicationContext(), steps, Toast.LENGTH_LONG).show();
-
-
-            while (steps.length() < 16) steps = "0" + steps;
-
-            String fmtTime = String.format("%1$-11s", testTime[i]);
-
-            String utcTime = df.format(new Date(testTime[i]*1000));
-
-            Toast.makeText(getApplicationContext(), generateTOTP(seed, steps, "6","HmacSHA1"), Toast.LENGTH_LONG).show();
-
-
-        }
-
-    }
 
 }
