@@ -184,7 +184,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
                                     calendar.get(Calendar.YEAR),
                                     calendar.get(Calendar.MONTH),
                                     calendar.get(Calendar.DAY_OF_MONTH), false);
-                    datePickerDialog.setYearRange(2015, 2028);
+                    datePickerDialog.setYearRange(2015, 2015);
                     datePickerDialog.show(getChildFragmentManager(), DATEPICKER_TAG);
 
                 }
@@ -195,7 +195,11 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
                             TimePickerDialog.newInstance(this,
                                     calendar.get(Calendar.HOUR_OF_DAY),
                                     calendar.get(Calendar.MINUTE), true, false);
-
+                    long time = System.currentTimeMillis();
+                    java.util.Date date1 = new java.util.Date(time);
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(date1);
+                    timePickerDialog.setStartTime(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
                     timePickerDialog.show(getChildFragmentManager(), TIMEPICKER_TAG);
                 }
                 break;
@@ -214,15 +218,15 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
     public void sendRideShare() {
         String autoMode = getModeofTransport(mGroup.getCheckedRadioButtonId());
         if (TextUtils.isEmpty(autoMode)) {
-            Toast.makeText(mActivity, "Please choose a mode of transport", Toast.LENGTH_LONG).show();
+            Toast.makeText(mActivity, R.string.choose_mode_transport, Toast.LENGTH_LONG).show();
             return;
         }
         if (TextUtils.isEmpty(date)) {
-            Toast.makeText(mActivity, "Please pick a date", Toast.LENGTH_LONG).show();
+            Toast.makeText(mActivity, R.string.pick_date_toast, Toast.LENGTH_LONG).show();
             return;
         }
         if (TextUtils.isEmpty(time)) {
-            Toast.makeText(mActivity, "Please pick a time", Toast.LENGTH_LONG).show();
+            Toast.makeText(mActivity, R.string.pick_time_toast, Toast.LENGTH_LONG).show();
             return;
         }
         Bundle arguments = new Bundle();
@@ -258,7 +262,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
                 Double.toString(argument.getDouble(Constants.SOURCE_LAT)) + "," + Double.toString(argument.getDouble(Constants.SOURCE_LON)),
                 Double.toString(argument.getDouble(Constants.DEST_LAT)) + "," + Double.toString(argument.getDouble(Constants.DEST_LON)),
                 getTime(),
-                "AIzaSyDs3G3hyG-CqTYizlQF3a-khTVAJ3E52VA",
+                Constants.GOOGLE_API_KEY,
                 new Callback<Response>() {
                     @Override
                     public void success(Response response, Response response2) {
@@ -375,14 +379,14 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
                                 invoiceDialog.show(mActivity.getSupportFragmentManager(), "InvoiceDialog");
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                                Toast.makeText(mActivity, "Some Problem Occurred", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show();
                                 if (mPDialog.isShowing()) {
                                     mPDialog.dismiss();
                                 }
                             }
 
                         } else {
-                            Toast.makeText(mActivity, "Some Problem Occurred", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show();
                             if (mPDialog.isShowing()) {
                                 mPDialog.dismiss();
                             }
@@ -396,7 +400,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
                         if (mPDialog.isShowing()) {
                             mPDialog.dismiss();
                         }
-                        Toast.makeText(mActivity, "Some Error Occurred. Please Try Again.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show();
                     }
                 }
         );
@@ -444,15 +448,15 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
         }
         String mode = getModeofTransport(mGroup.getCheckedRadioButtonId());
         if (TextUtils.isEmpty(mode)) {
-            Toast.makeText(mActivity, "Please choose a mode of transport", Toast.LENGTH_LONG).show();
+            Toast.makeText(mActivity, R.string.choose_mode_transport, Toast.LENGTH_LONG).show();
             return;
         }
         if (TextUtils.isEmpty(date)) {
-            Toast.makeText(mActivity, "Please pick a date", Toast.LENGTH_LONG).show();
+            Toast.makeText(mActivity, R.string.pick_date_toast, Toast.LENGTH_LONG).show();
             return;
         }
         if (TextUtils.isEmpty(time)) {
-            Toast.makeText(mActivity, "Please pick a time", Toast.LENGTH_LONG).show();
+            Toast.makeText(mActivity, R.string.pick_time_toast, Toast.LENGTH_LONG).show();
             return;
         }
         bookApi.makeBooking(
@@ -494,7 +498,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
                         String result = sb.toString();
                         Log.d("Response", result);
                         if (result.contains("false")) {
-                            Toast.makeText(mActivity, "Booking Successful", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mActivity, R.string.booking_successful, Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(mActivity, FutureRidesActivity.class);
                             startActivity(intent);
                             mActivity.finish();

@@ -47,4 +47,5 @@ public class Constants {
     public static final String ACTUAL_FARE = "actual_fare";
     public static final String SHARE_REG_ID = "shareRegId";
     public static final String DISTANCE = "distance";
+    public static final String GOOGLE_API_KEY = "AIzaSyDs3G3hyG-CqTYizlQF3a-khTVAJ3E52VA";
 }

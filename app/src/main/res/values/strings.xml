@@ -16,4 +16,9 @@
     <string name="btn_logout_from_google">Logout from Google</string>
     <string name="btn_revoke_access">Revoke Access</string>
     <string name="login">Login</string>
+    <string name="choose_mode_transport">Please choose a mode of transport</string>
+    <string name="pick_date_toast">Please pick a date</string>
+    <string name="pick_time_toast">Please pick a time</string>
+    <string name="error_occurred">Some Problem Occurred</string>
+    <string name="booking_successful">Booking Successful</string>
 </resources>

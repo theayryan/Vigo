@@ -97,6 +97,8 @@ public interface VigoApi {
             @Field(Constants.SOURCE_LON) String s_lng,
             @Field(Constants.DEST_LAT) String d_lat,
             @Field(Constants.DEST_LON) String d_lng,
+            @Field(Constants.DISTANCE) String distance,
+            @Field(Constants.TIME_TAKEN) String time_taken,
             retrofit.Callback<retrofit.client.Response> callback
     );
 

@@ -1,15 +1,14 @@
 package vigo.com.vigo;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,8 +17,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
-import java.sql.Date;
-import java.sql.Time;
 import java.util.List;
 
 import retrofit.Callback;
@@ -30,20 +27,20 @@ import retrofit.client.Response;
 /**
  * Created by ayushb on 28/6/15.
  */
-public class FutureRidesAdapter extends ArrayAdapter<Book> implements View.OnClickListener {
+public class FutureRidesAdapter extends ArrayAdapter<Book> {
 
-    private List<Book> objects;
-    private final Activity activity;
+    private final WeakReference<FragmentActivity> activity;
     private final Typeface mBree;
     private final Typeface mComfortaa;
     WeakReference<Context> context;
+    private List<Book> objects;
     private VigoApi cancelApi;
 
-    public FutureRidesAdapter(Context context, List<Book> objects, Activity activity) {
+    public FutureRidesAdapter(Context context, List<Book> objects, FragmentActivity activity) {
         super(context, R.layout.list_item, objects);
         this.context = new WeakReference<Context>(context);
         this.objects = objects;
-        this.activity = activity;
+        this.activity = new WeakReference<FragmentActivity>(activity);
         mBree = Typeface.createFromAsset(activity.getAssets(), "fonts/BreeSerif-Regular.ttf");
         mComfortaa = Typeface.createFromAsset(activity.getAssets(), "fonts/Comfortaa-Regular.ttf");
     }
@@ -57,7 +54,7 @@ public class FutureRidesAdapter extends ArrayAdapter<Book> implements View.OnCli
     public View getView(final int position, View convertView, ViewGroup parent) {
         if(convertView==null){
             // inflate the layout
-            LayoutInflater inflater = activity.getLayoutInflater();
+            LayoutInflater inflater = activity.get().getLayoutInflater();
             convertView = inflater.inflate(R.layout.list_item, parent, false);
         }
 
@@ -120,7 +117,18 @@ public class FutureRidesAdapter extends ArrayAdapter<Book> implements View.OnCli
                 });
             }
         });
-        invoice.setOnClickListener(this);
+        invoice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ShowInvoiceDialog dialog = ShowInvoiceDialog.getInstance(
+                        Integer.toString(objects.get(position).fare),
+                        objects.get(position).distance,
+                        objects.get(position).time_taken
+                );
+                dialog.setCancelable(true);
+                dialog.show(activity.get().getSupportFragmentManager(), "ShowInvoiceDialog");
+            }
+        });
         String date =objects.get(position).date;
         String time = objects.get(position).time;
         dateTV.setText(date);
@@ -134,12 +142,5 @@ public class FutureRidesAdapter extends ArrayAdapter<Book> implements View.OnCli
         return convertView;
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.invoice:
-                //show invoice dialog
-                break;
-        }
-    }
+
 }

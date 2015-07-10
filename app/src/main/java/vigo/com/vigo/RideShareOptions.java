@@ -5,6 +5,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +29,7 @@ import retrofit.client.Response;
  * Created by ayushb on 2/7/15.
  */
 public class RideShareOptions extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener {
-    private Activity mActivity;
+    private FragmentActivity mActivity;
     private ListView mRidesList;
     private Button mAddRideShare;
     private VigoApi rideShareApi;
@@ -170,6 +171,8 @@ public class RideShareOptions extends Fragment implements View.OnClickListener, 
                 ride.source_lng,
                 ride.destination_lat,
                 ride.destination_lng,
+                ride.distance,
+                ride.time_taken,
                 new Callback<Response>() {
                     @Override
                     public void success(Response response, Response response2) {
@@ -196,10 +199,10 @@ public class RideShareOptions extends Fragment implements View.OnClickListener, 
                         String result = sb.toString();
                         Log.d("Response", result);
                         if (result.contains("UNSUCCESSFUL")) {
-                            Toast.makeText(mActivity, "Some Error Occurred. Please Try Again.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show();
                         } else {
                             //show fare
-
+                            Toast.makeText(mActivity, "Your ride has been booked", Toast.LENGTH_SHORT).show();
                         }
                     }
 

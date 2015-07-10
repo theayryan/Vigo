@@ -79,18 +79,24 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
             }
             // Selecting the first object buffer.
             final Place place = places.get(0);
+            Log.d("PLACE_NAME", place.getAddress().toString());
             CharSequence attributions = places.getAttributions();
+            String address = place.getAddress().toString();
             if (place.getLatLng() != null) {
                 searchLatlng = place.getLatLng();
             } else {
                 onResult(places);
             }
-            if(SOURCE_CHOSEN==false){
-                argumentsBooking.putString(Constants.SOURCE_STRING,place.getName().toString());
-            }
-            else if(DESTINATION_CHOSEN==false){
-                destString = place.getAddress();
-                argumentsBooking.putString(Constants.DEST_STRING,place.getName().toString());
+            if (address.contains("Dadri") || address.contains("Noida") || address.contains("Greater Noida") || address.contains("Gautam Buddha Nagar")) {
+                if (SOURCE_CHOSEN == false) {
+                    argumentsBooking.putString(Constants.SOURCE_STRING, place.getName().toString());
+                } else if (DESTINATION_CHOSEN == false) {
+                    destString = place.getAddress();
+                    argumentsBooking.putString(Constants.DEST_STRING, place.getName().toString());
+                }
+            } else {
+                Toast.makeText(mActivity, "Currently we only have pick-ups from Noida, Greater Noida and Dadri", Toast.LENGTH_SHORT).show();
+                mSearchBox.setText("");
             }
         }
     };

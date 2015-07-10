@@ -1,12 +1,14 @@
 package vigo.com.vigo;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
@@ -18,25 +20,25 @@ import java.util.List;
 public class RidesShareAdapter extends ArrayAdapter<Book> {
 
     private final List<Book> objects;
-    private final Activity activity;
+    private final WeakReference<FragmentActivity> activity;
     private final Typeface mBree;
     private final Typeface mComfortaa;
     WeakReference<Context> context;
 
-    public RidesShareAdapter(Context context, List<Book> objects, Activity activity) {
+    public RidesShareAdapter(Context context, List<Book> objects, FragmentActivity activity) {
         super(context, R.layout.list_item, objects);
         this.context = new WeakReference<Context>(context);
         this.objects = objects;
-        this.activity = activity;
+        this.activity = new WeakReference<FragmentActivity>(activity);
         mBree = Typeface.createFromAsset(activity.getAssets(), "fonts/BreeSerif-Regular.ttf");
         mComfortaa = Typeface.createFromAsset(activity.getAssets(), "fonts/Comfortaa-Regular.ttf");
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             // inflate the layout
-            LayoutInflater inflater = activity.getLayoutInflater();
+            LayoutInflater inflater = activity.get().getLayoutInflater();
             convertView = inflater.inflate(R.layout.list_item, parent, false);
         }
 
@@ -44,6 +46,23 @@ public class RidesShareAdapter extends ArrayAdapter<Book> {
         TextView destination = (TextView) convertView.findViewById(R.id.destination);
         TextView dateTV = (TextView) convertView.findViewById(R.id.date);
         TextView timeTV = (TextView) convertView.findViewById(R.id.time);
+        LinearLayout extras = (LinearLayout) convertView.findViewById(R.id.future_rides_extra);
+        extras.setVisibility(View.VISIBLE);
+        ImageButton invoice = (ImageButton) convertView.findViewById(R.id.invoice);
+        LinearLayout cancel = (LinearLayout) convertView.findViewById(R.id.cancel_layout);
+        cancel.setVisibility(View.GONE);
+        invoice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ShowInvoiceDialog dialog = ShowInvoiceDialog.getInstance(
+                        Integer.toString(objects.get(position).fare),
+                        objects.get(position).distance,
+                        objects.get(position).time_taken
+                );
+                dialog.setCancelable(true);
+                dialog.show(activity.get().getSupportFragmentManager(), "ShowInvoiceDialog");
+            }
+        });
         String date = objects.get(position).date;
         String time = objects.get(position).time;
         dateTV.setText(date);
