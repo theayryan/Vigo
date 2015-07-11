@@ -51,6 +51,7 @@ public class InvoiceDialog extends DialogFragment implements View.OnClickListene
                     invoiceInterface = (InvoiceInterface) fragment;
                     invoiceInterface.cancel();
                 }
+                dismiss();
                 break;
             case R.id.confirm:
                 if (fragment != null && fragment instanceof InvoiceInterface) {

@@ -1,6 +1,7 @@
 package vigo.com.vigo;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,6 +16,9 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -28,7 +32,7 @@ import retrofit.client.Response;
 /**
  * Created by ayushb on 2/7/15.
  */
-public class RideShareOptions extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener {
+public class RideShareOptions extends Fragment implements View.OnClickListener, InvoiceDialog.InvoiceInterface, AdapterView.OnItemClickListener, UtilityDialog.UtilityInterface {
     private FragmentActivity mActivity;
     private ListView mRidesList;
     private Button mAddRideShare;
@@ -37,6 +41,7 @@ public class RideShareOptions extends Fragment implements View.OnClickListener, 
     private Book args;
     private Typeface mBree;
     private Typeface mComfortaa;
+    private InvoiceDialog invoiceDialog;
 
     @Nullable
     @Override
@@ -98,62 +103,133 @@ public class RideShareOptions extends Fragment implements View.OnClickListener, 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ride_share_button:
-                rideShareApi.addRideShare(
-                        args.source,
-                        args.destination,
-                        args.date,
-                        args.time,
-                        args.vehical_type,
-                        args.customer_id,
-                        args.source_lat,
-                        args.source_lng,
-                        args.destination_lat,
-                        args.destination_lng,
-                        args.distance,
-                        args.time_taken,
-                        new Callback<Response>() {
-                            @Override
-                            public void success(Response response, Response response2) {
-                                BufferedReader reader = null;
-                                StringBuilder sb = new StringBuilder();
-                                try {
-
-                                    reader = new BufferedReader(new InputStreamReader(response.getBody().in()));
-
-                                    String line;
-
-                                    try {
-                                        while ((line = reader.readLine()) != null) {
-                                            sb.append(line);
-                                        }
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-
-
-                                String result = sb.toString();
-                                Log.d("Response", result);
-                                if (result.contains("UNSUCCESSFUL")) {
-                                    Toast.makeText(mActivity, "Some Error Occurred. Please Try Again.", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    //ask what is expected
-
-                                }
-                            }
-
-                            @Override
-                            public void failure(RetrofitError error) {
-                                error.printStackTrace();
-                                Toast.makeText(mActivity, "Some Error Occurred. Please Try Again.", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                );
+                getRideShareFare();
                 break;
         }
 
+    }
+
+    public void makeNewRideShare() {
+        rideShareApi.addRideShare(
+                args.source,
+                args.destination,
+                args.date,
+                args.time,
+                args.vehical_type,
+                args.customer_id,
+                args.source_lat,
+                args.source_lng,
+                args.destination_lat,
+                args.destination_lng,
+                args.distance,
+                args.time_taken,
+                new Callback<Response>() {
+                    @Override
+                    public void success(Response response, Response response2) {
+                        BufferedReader reader = null;
+                        StringBuilder sb = new StringBuilder();
+                        try {
+
+                            reader = new BufferedReader(new InputStreamReader(response.getBody().in()));
+
+                            String line;
+
+                            try {
+                                while ((line = reader.readLine()) != null) {
+                                    sb.append(line);
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        String result = sb.toString();
+                        Log.d("Response", result);
+                        if (result.contains("UNSUCCESSFUL")) {
+                            Toast.makeText(mActivity, "Some Error Occurred. Please Try Again.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            //ask what is expected
+                            if (invoiceDialog.isVisible()) {
+                                invoiceDialog.dismiss();
+                            }
+                            UtilityDialog dialog = UtilityDialog.getInstance(mActivity.getString(R.string.booking_confirmed));
+                            dialog.setCancelable(true);
+                            dialog.show(mActivity.getSupportFragmentManager(), "UtilityDialog");
+                        }
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        error.printStackTrace();
+                        Toast.makeText(mActivity, "Some Error Occurred. Please Try Again.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+    }
+
+    public void getRideShareFare() {
+        rideShareApi.shareFare(
+                args.distance + "",
+                new Callback<Response>() {
+
+
+                    @Override
+                    public void success(Response response, Response response2) {
+                        BufferedReader reader = null;
+                        StringBuilder sb = new StringBuilder();
+                        try {
+
+                            reader = new BufferedReader(new InputStreamReader(response.getBody().in()));
+
+                            String line;
+
+                            try {
+                                while ((line = reader.readLine()) != null) {
+                                    sb.append(line);
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        String result = sb.toString();
+                        Log.d("Response", result);
+                        if (result.contains("false")) {
+                            try {
+                                JSONObject responseJson = new JSONObject(result);
+                                String actual = responseJson.getString("actual");
+                                String discount = responseJson.getString("discount");
+                                String fare = responseJson.getString("fare");
+
+                                invoiceDialog = InvoiceDialog.getInstance(actual, fare, discount, args.time_taken);
+                                invoiceDialog.setTargetFragment(RideShareOptions.this, 0);
+                                invoiceDialog.setCancelable(false);
+                                invoiceDialog.show(mActivity.getSupportFragmentManager(), "InvoiceDialog");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                Toast.makeText(mActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show();
+                            }
+
+                        } else {
+                            Toast.makeText(mActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show();
+
+                        }
+
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        error.printStackTrace();
+                        Toast.makeText(mActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
     }
 
     @Override
@@ -203,6 +279,9 @@ public class RideShareOptions extends Fragment implements View.OnClickListener, 
                         } else {
                             //show fare
                             Toast.makeText(mActivity, "Your ride has been booked", Toast.LENGTH_SHORT).show();
+                            UtilityDialog dialog = UtilityDialog.getInstance(mActivity.getString(R.string.booking_confirmed));
+                            dialog.setCancelable(true);
+                            dialog.show(mActivity.getSupportFragmentManager(), "UtilityDialog");
                         }
                     }
 
@@ -213,5 +292,22 @@ public class RideShareOptions extends Fragment implements View.OnClickListener, 
                     }
                 }
         );
+    }
+
+    @Override
+    public void confirmUtility() {
+        Intent intent = new Intent(mActivity, FutureRidesActivity.class);
+        startActivity(intent);
+        mActivity.finish();
+    }
+
+    @Override
+    public void confirmBooking() {
+        makeNewRideShare();
+    }
+
+    @Override
+    public void cancel() {
+
     }
 }

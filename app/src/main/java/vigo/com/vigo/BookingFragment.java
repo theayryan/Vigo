@@ -48,7 +48,7 @@ import retrofit.client.Response;
 /**
  * Created by ayushb on 22/6/15.
  */
-public class BookingFragment extends Fragment implements View.OnClickListener, InvoiceDialog.InvoiceInterface, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
+public class BookingFragment extends Fragment implements View.OnClickListener, InvoiceDialog.InvoiceInterface, UtilityDialog.UtilityInterface, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
     public static final String DATEPICKER_TAG = "datepicker";
     public static final String TIMEPICKER_TAG = "timepicker";
@@ -184,7 +184,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
                                     calendar.get(Calendar.YEAR),
                                     calendar.get(Calendar.MONTH),
                                     calendar.get(Calendar.DAY_OF_MONTH), false);
-                    datePickerDialog.setYearRange(2015, 2015);
+                    datePickerDialog.setYearRange(2015, 2016);
                     datePickerDialog.show(getChildFragmentManager(), DATEPICKER_TAG);
 
                 }
@@ -319,7 +319,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
         JSONArray elementsArray = element.getJSONArray("elements");
         JSONObject element1 = elementsArray.getJSONObject(0);
         JSONObject distanceObject = element1.getJSONObject("distance");
-        distanceValue = distanceObject.getInt("value");
+        distanceValue = distanceObject.getInt("value") / 1000;
         JSONObject durationObject = element1.getJSONObject("duration");
         durationValue = durationObject.getString("text");
         sendRideShare();
@@ -333,11 +333,11 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
         JSONArray elementsArray = element.getJSONArray("elements");
         JSONObject element1 = elementsArray.getJSONObject(0);
         JSONObject distanceObject = element1.getJSONObject("distance");
-        distanceValue = distanceObject.getInt("value");
+        distanceValue = distanceObject.getInt("value") / 1000;
         JSONObject durationObject = element1.getJSONObject("duration");
         durationValue = durationObject.getString("text");
         bookApi.bulkFare(
-                distanceValue / 1000 + "",
+                distanceValue + "",
                 new Callback<Response>() {
                     @Override
                     public void success(Response response, Response response2) {
@@ -421,7 +421,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
         DateFormat df = new SimpleDateFormat("yyyy/M/d HH:m:s");
         try {
             Date myDate = df.parse(date + " " + time);
-            return (int) myDate.getTime() / 1000;
+            return (int) (myDate.getTime() / 1000);
         } catch (ParseException e) {
             e.printStackTrace();
             return 0;
@@ -499,9 +499,9 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
                         Log.d("Response", result);
                         if (result.contains("false")) {
                             Toast.makeText(mActivity, R.string.booking_successful, Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(mActivity, FutureRidesActivity.class);
-                            startActivity(intent);
-                            mActivity.finish();
+                            UtilityDialog dialog = UtilityDialog.getInstance(mActivity.getString(R.string.booking_confirmed));
+                            dialog.setCancelable(true);
+                            dialog.show(mActivity.getSupportFragmentManager(), "UtilityDialog");
                         }
                     }
 
@@ -516,5 +516,12 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
     @Override
     public void cancel() {
 
+    }
+
+    @Override
+    public void confirmUtility() {
+        Intent intent = new Intent(mActivity, FutureRidesActivity.class);
+        startActivity(intent);
+        mActivity.finish();
     }
 }

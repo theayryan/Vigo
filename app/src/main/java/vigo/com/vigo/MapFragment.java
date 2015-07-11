@@ -1,10 +1,7 @@
 package vigo.com.vigo;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.graphics.Typeface;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -38,10 +35,6 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by ayushb on 19/6/15.
@@ -158,7 +151,6 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
-        googleMap.setMyLocationEnabled(true);
         mSearchBox.setOnItemClickListener(mAutocompleteClickListener);
         mSearchBox.setThreshold(3);
         LatLngBounds latLngBounds = new LatLngBounds(new LatLng(-90, -180), new LatLng(90, 0));
@@ -170,71 +162,62 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
         mSearchBox.setTypeface(mBree);
         mSearchBox.setHint("Choose Pick Up Point");
         SOURCE_CHOSEN = false;
-        googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
-            @Override
-            public boolean onMyLocationButtonClick() {
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        final ProgressDialog mDialog = new ProgressDialog(mActivity);
-                        mDialog.setMessage("Fetching");
-                        if (mDialog != null)
-                            mDialog.show();
-                        if (googleMap.getMyLocation() != null) {
-                            searchLatlng = new LatLng(googleMap.getMyLocation().getLatitude(), googleMap.getMyLocation().getLongitude());
-                            final CameraPosition cameraPosition = new CameraPosition.Builder()
-                                    .target(new LatLng(googleMap.getMyLocation().getLatitude(), googleMap.getMyLocation().getLongitude()))
-                                    .tilt(70).zoom(18f).build();
-
-                            Runnable getCurrentLocation = new Runnable() {
-                                @Override
-                                public void run() {
-                                    Geocoder geocoder = new Geocoder(mActivity, Locale.ENGLISH);
-                                    try {
-                                        List<Address> addressList = geocoder.getFromLocation(googleMap.getMyLocation().getLatitude(), googleMap.getMyLocation().getLongitude(), 1);
-                                        final StringBuilder string = new StringBuilder("");
-                                        for (int i = 0; i < addressList.get(0).getMaxAddressLineIndex(); i++) {
-                                            string.append(addressList.get(0).getAddressLine(i));
-                                        }
-                                        mActivity.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                mSearchBox.setText(string.toString() + " ,");
-                                                //googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                                                if (mDialog.isShowing()) {
-                                                    mDialog.dismiss();
-                                                }
-                                                mSearchImage.performClick();
-                                            }
-                                        });
-
-                                        if (SOURCE_CHOSEN == false) {
-                                            argumentsBooking.putString(Constants.SOURCE_STRING, addressList.get(0).getSubLocality());
-                                        } else if (DESTINATION_CHOSEN == false) {
-
-                                            argumentsBooking.putString(Constants.DEST_STRING, addressList.get(0).getSubLocality());
-                                        }
-
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            };
-                            getCurrentLocation.run();
-
-                            if (mMarkerImage.getVisibility() == View.INVISIBLE)
-                                mMarkerImage.setVisibility(View.VISIBLE);
-                        }
-                    }
-                };
-                runnable.run();
-
-                return true;
-            }
-        });
 
         return rootView;
     }
+    //will implement later if required
+    /*private class GetCurrentLocation extends AsyncTask<String, String, String>{
+
+        private ProgressDialog mDialog;
+        private List<Address> addressList;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mDialog = new ProgressDialog(mActivity);
+            mDialog.setMessage("Fetching");
+            if (mDialog != null)
+                mDialog.show();
+            if (googleMap.getMyLocation() != null) {
+                searchLatlng = new LatLng(googleMap.getMyLocation().getLatitude(), googleMap.getMyLocation().getLongitude());
+                final CameraPosition cameraPosition = new CameraPosition.Builder()
+                        .target(new LatLng(googleMap.getMyLocation().getLatitude(), googleMap.getMyLocation().getLongitude()))
+                        .tilt(70).zoom(18f).build();
+            }
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            Geocoder geocoder = new Geocoder(mActivity, Locale.ENGLISH);
+            try {
+                addressList = geocoder.getFromLocation(googleMap.getMyLocation().getLatitude(), googleMap.getMyLocation().getLongitude(), 1);
+                final StringBuilder string = new StringBuilder("");
+                for (int i = 0; i < addressList.get(0).getMaxAddressLineIndex(); i++) {
+                    string.append(addressList.get(0).getAddressLine(i));
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+            @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+                if (mDialog.isShowing()) {
+                    mDialog.dismiss();
+                }
+                if (SOURCE_CHOSEN == false) {
+                    argumentsBooking.putString(Constants.SOURCE_STRING, addressList.get(0).getSubLocality());
+                } else if (DESTINATION_CHOSEN == false) {
+
+                    argumentsBooking.putString(Constants.DEST_STRING, addressList.get(0).getSubLocality());
+                }
+                if (mMarkerImage.getVisibility() == View.INVISIBLE)
+                    mMarkerImage.setVisibility(View.VISIBLE);
+        }
+    }*/
 
     @Override
     public void onStart() {

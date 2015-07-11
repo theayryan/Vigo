@@ -4,7 +4,7 @@ package vigo.com.vigo;
  * Created by ayushb on 23/6/15.
  */
 public class Constants {
-    public static final String GCM_PROJECT_NUMBER = "402397630096";
+    public static final String GCM_PROJECT_NUMBER = "168569245813";
     public static final String SOURCE_STRING = "source_string";
     public static final String DEST_STRING = "dest_string";
     public static final String TRIP_ID = "trip_id";
@@ -48,4 +48,8 @@ public class Constants {
     public static final String SHARE_REG_ID = "shareRegId";
     public static final String DISTANCE = "distance";
     public static final String GOOGLE_API_KEY = "AIzaSyDs3G3hyG-CqTYizlQF3a-khTVAJ3E52VA";
+    public static final String DRIVER_REACHED = "DRIVER_REACHED";
+    public static final String TRIP_BEGAN_VERIFY = "TRIP_BEGAN_VERIFY";
+    public static final String CONTRACTOR_CANCELLED = "CONTRACTOR_CANCELLED";
+    public static final String TEXT = "text";
 }

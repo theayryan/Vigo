@@ -3,13 +3,6 @@ package vigo.com.vigo;
 /**
  * Created by ayushb on 29/6/15.
  */
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import android.app.IntentService;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
-import android.widget.Toast;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -19,6 +12,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;
@@ -38,6 +32,11 @@ public class GcmMessageHandler extends GcmListenerService {
     @Override
     public void onMessageReceived(String from, Bundle data) {
         String message = data.getString("message");
+        String source = data.getString("source");
+        String destination = data.getString("destination");
+        String date = data.getString("date");
+        String time = data.getString("time");
+        int tripId = data.getInt("trip_id");
         Log.d(TAG, "From: " + from);
         Log.d(TAG, "Message: " + message);
 
@@ -52,7 +51,17 @@ public class GcmMessageHandler extends GcmListenerService {
          * In some cases it may be useful to show a notification indicating to the user
          * that a message was received.
          */
-        sendNotification(message);
+        if (message.equalsIgnoreCase(Constants.DRIVER_REACHED)) {
+            String notify = "The driver for your trip from " + source + " to " + destination + " on " + date + " at " + time + " is waiting for you.";
+            sendNotification(getString(R.string.DRIVER_REACHED), "Message from Vigo", notify, 0);
+        } else if (message.equalsIgnoreCase(Constants.TRIP_BEGAN_VERIFY)) {
+            String notify = "Please verify that your trip from " + source + " to " + destination + " on " + date + " at " + time + " has started";
+            sendNotification(getString(R.string.TRIP_BEGAN_VERIFY), "Message from Vigo", notify, tripId);
+        } else if (message.equalsIgnoreCase(Constants.CONTRACTOR_CANCELLED)) {
+            String notify = "Your trip from " + source + " to " + destination + " on " + date + " at " + time + " has been cancelled by the contractor." +
+                    " We apologize for the convenience caused.";
+            sendNotification("Trip Cancelled : Expand to view details", "Message from Vigo", notify, 0);
+        }
     }
     // [END receive_message]
 
@@ -61,21 +70,28 @@ public class GcmMessageHandler extends GcmListenerService {
      *
      * @param message GCM message received.
      */
-    private void sendNotification(String message) {
+    private void sendNotification(String message, String title, String longMessage, int tripId) {
         Log.d("Notification Server","Received");
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra(Constants.TEXT, longMessage);
+        if (tripId > 0) {
+            intent.putExtra(Constants.TRIP_ID, tripId);
+        }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setContentTitle("GCM Message")
+                .setContentTitle(title)
                 .setContentText(message)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
-                .setContentIntent(pendingIntent);
-
+                .setContentIntent(pendingIntent)
+                .setSmallIcon(R.drawable.ic_logo);
+        if (!TextUtils.isEmpty(longMessage)) {
+            notificationBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(longMessage));
+        }
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 

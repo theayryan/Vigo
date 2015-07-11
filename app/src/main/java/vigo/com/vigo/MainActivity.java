@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,7 +25,7 @@ import com.squareup.picasso.Transformation;
 import io.fabric.sdk.android.Fabric;
 
 
-public class MainActivity extends FragmentActivity implements DrawerLayout.DrawerListener {
+public class MainActivity extends FragmentActivity implements DrawerLayout.DrawerListener, UtilityDialog.UtilityInterface {
     private RelativeLayout mMainContainer;
     private Fragment mFragment;
     private DrawerLayout mDrawerLayout;
@@ -35,6 +36,7 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
     private Typeface mComfortaa;
     private LinearLayout mFutureRides;
     private LinearLayout mPastRides;
+    private int tripId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +49,13 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
         mUserName = (TextView) findViewById(R.id.user_name);
         mBree = Typeface.createFromAsset(getAssets(), "fonts/BreeSerif-Regular.ttf");
         mComfortaa = Typeface.createFromAsset(getAssets(), "fonts/Comfortaa-Regular.ttf");
+        String utilityText = getIntent().getStringExtra(Constants.TEXT);
+        tripId = getIntent().getIntExtra(Constants.TRIP_ID, 0);
+        if (!TextUtils.isEmpty(utilityText)) {
+            UtilityDialog dialog = UtilityDialog.getInstance(utilityText);
+            dialog.setCancelable(true);
+            dialog.show(getSupportFragmentManager(), "UtilityDialog");
+        }
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean is_logged_in = preferences.getBoolean(Constants.IS_LOGGED_IN,false);
         if(is_logged_in==false){
@@ -131,5 +140,12 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
     @Override
     public void onDrawerStateChanged(int newState) {
 
+    }
+
+    @Override
+    public void confirmUtility() {
+        if (tripId > 0) {
+            //call confirmation
+        }
     }
 }
