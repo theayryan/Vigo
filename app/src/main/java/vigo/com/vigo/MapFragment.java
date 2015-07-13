@@ -1,8 +1,10 @@
 package vigo.com.vigo;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -35,6 +37,10 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by ayushb on 19/6/15.
@@ -61,6 +67,22 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
     private LatLng searchLatlng;
     private CharSequence sourceString;
     private CharSequence destString;
+    private AdapterView.OnItemClickListener mAutocompleteClickListener
+            = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            final PlacesArrayAdapter.PlaceAutocomplete item = mPlaceArrayAdapter.getItem(position);
+            final String placeId = String.valueOf(item.placeId);
+            Log.i("Selected", "Selected: " + item.description);
+            PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
+                    .getPlaceById(mGoogleApiClient, placeId);
+            placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
+            Log.i("Fetching", "Fetching details for ID: " + item.placeId);
+        }
+    };
+    private MixpanelAPI mixPanel;
+    private Map<String, Object> userSearch;
+    private SharedPreferences pref;
     private ResultCallback<PlaceBuffer> mUpdatePlaceDetailsCallback
             = new ResultCallback<PlaceBuffer>() {
         @Override
@@ -88,22 +110,17 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
                     argumentsBooking.putString(Constants.DEST_STRING, place.getName().toString());
                 }
             } else {
+
                 Toast.makeText(mActivity, "Currently we only have pick-ups from Noida, Greater Noida and Dadri", Toast.LENGTH_SHORT).show();
                 mSearchBox.setText("");
+                userSearch.put(Constants.CUSTOMER_ID, pref.getString(Constants.AUTH_TOKEN, ""));
+                userSearch.put(Constants.GENDER, pref.getString(Constants.GENDER, ""));
+                userSearch.put(Constants.SHARE_REG_ID, pref.getString(Constants.GCM_REG_ID, ""));
+                userSearch.put(Constants.USER_EMAIL, pref.getString(Constants.USER_EMAIL, ""));
+                userSearch.put("searched_for_name", place.getName());
+                userSearch.put("searched_for_address", place.getName());
+                mixPanel.trackMap("User Searches", userSearch);
             }
-        }
-    };
-    private AdapterView.OnItemClickListener mAutocompleteClickListener
-            = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            final PlacesArrayAdapter.PlaceAutocomplete item = mPlaceArrayAdapter.getItem(position);
-            final String placeId = String.valueOf(item.placeId);
-            Log.i("Selected", "Selected: " + item.description);
-            PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
-                    .getPlaceById(mGoogleApiClient, placeId);
-            placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
-            Log.i("Fetching", "Fetching details for ID: " + item.placeId);
         }
     };
 
@@ -117,6 +134,9 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.map_layout, container, false);
         MapsInitializer.initialize(mActivity);
+        pref = PreferenceManager.getDefaultSharedPreferences(mActivity);
+        mixPanel = MixpanelAPI.getInstance(mActivity, Constants.MIXPANEL_NUMBER);
+        userSearch = new HashMap<>();
         argumentsBooking = new Bundle();
         mMap = (MapView) rootView.findViewById(R.id.map_view);
         mLaterButton = (TextView) rootView.findViewById(R.id.later_button);

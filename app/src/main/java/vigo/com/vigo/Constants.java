@@ -5,6 +5,7 @@ package vigo.com.vigo;
  */
 public class Constants {
     public static final String GCM_PROJECT_NUMBER = "168569245813";
+    public static final String MIXPANEL_NUMBER = "3c4bb9526c950b233f2c56855d306793";
     public static final String SOURCE_STRING = "source_string";
     public static final String DEST_STRING = "dest_string";
     public static final String TRIP_ID = "trip_id";
@@ -52,4 +53,5 @@ public class Constants {
     public static final String TRIP_BEGAN_VERIFY = "TRIP_BEGAN_VERIFY";
     public static final String CONTRACTOR_CANCELLED = "CONTRACTOR_CANCELLED";
     public static final String TEXT = "text";
+    public static final String GENDER = "gender";
 }

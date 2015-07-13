@@ -205,6 +205,12 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
                 break;
             case R.id.Book:
                 BOOK_PRESSED = true;
+                int time = getTime();
+                int difference = time-((int)(System.currentTimeMillis()/1000));
+                if(difference>3*24*60*60) {
+                    Toast.makeText(mActivity,"Please choose date and time within the next 3 days",Toast.LENGTH_SHORT).show();
+                    break;
+                }
                 sendDistance();
                 showProgressDialog();
                 break;

@@ -31,7 +31,8 @@
 
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -46,16 +47,18 @@
         </activity>
 
         <activity android:name=".FutureRidesActivity"
-            android:label="Future Rides"
-            android:parentActivityName=".MainActivity"/>
+                  android:label="Future Rides"
+                  android:parentActivityName=".MainActivity"
+                  android:screenOrientation="portrait"/>
 
         <activity android:name=".PastRidesActivity"
-            android:label="Past Rides"
-            android:parentActivityName=".MainActivity"/>
+                  android:label="Past Rides"
+                  android:parentActivityName=".MainActivity"
+                  android:screenOrientation="portrait"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDs3G3hyG-CqTYizlQF3a-khTVAJ3E52VA" />
+            android:value="@string/google_maps_api_key"/>
 
         <meta-data
             android:name="com.google.android.gms.version"

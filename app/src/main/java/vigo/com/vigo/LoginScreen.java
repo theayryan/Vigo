@@ -30,6 +30,7 @@ import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
 import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,6 +42,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import retrofit.Callback;
 import retrofit.RestAdapter;
@@ -76,6 +79,9 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
     private NumberDialogFragment numberDialogFragment;
     private VigoApi registerApi;
     private String AUTH_TOKEN;
+    private MixpanelAPI mixPanel;
+    private Map<String, Object> userDetails;
+    private String gender;
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
@@ -83,7 +89,7 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_screen_layout);
         getSupportActionBar().hide();
-
+        mixPanel = MixpanelAPI.getInstance(this, Constants.MIXPANEL_NUMBER);
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         background = (LinearLayout) findViewById(R.id.login_background);
         btnSignIn = (SignInButton) findViewById(R.id.btn_sign_in);
@@ -100,6 +106,7 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
 
         mHeading.setTypeface(mBree);
         mSubHeading.setTypeface(mComfortaa);
+        userDetails = new HashMap<>();
         }
 
     private String[] getAccountNames() {
@@ -193,6 +200,9 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
                 if (PROFILE_DATA.has("name")) {
                     personName = PROFILE_DATA.getString("name");
                 }
+                if (PROFILE_DATA.has("gender")) {
+                    gender = PROFILE_DATA.getString("gender");
+                }
                 if(TextUtils.isEmpty(personName)||TextUtils.isEmpty(personPhotoUrl)||TextUtils.isEmpty(regid))
                     return;
 
@@ -202,6 +212,7 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
                         .putBoolean(Constants.IS_LOGGED_IN, true)
                         .putString(Constants.GCM_REG_ID,regid)
                         .putString(Constants.AUTH_TOKEN, AUTH_TOKEN)
+                        .putString(Constants.GENDER, gender)
                         .commit();
 
                 if(mDialog.isShowing()){
@@ -235,8 +246,18 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
         else{
             //actually supposed to send msg here with totp
             String user_number = number;
-            pref.edit().putString(Constants.USER_NUMBER,user_number).commit();
+            pref.edit().putString(Constants.USER_NUMBER, user_number).commit();
 
+            mixPanel.getPeople().identify(Constants.AUTH_TOKEN);
+
+            userDetails.put(Constants.CUSTOMER_ID, pref.getString(Constants.AUTH_TOKEN, ""));
+            userDetails.put(Constants.SHARE_REG_ID, regid);
+            userDetails.put(Constants.USER_NAME, pref.getString(Constants.USER_NAME, ""));
+            userDetails.put(Constants.USER_EMAIL, pref.getString(Constants.USER_EMAIL, ""));
+            userDetails.put(Constants.USER_NUMBER, pref.getString(Constants.USER_NUMBER, ""));
+            if (!TextUtils.isEmpty(gender))
+                userDetails.put("user_gender", gender);
+            mixPanel.getPeople().setMap(userDetails);
             RestAdapter restAdapter = new RestAdapter.Builder()
                     .setEndpoint(Constants.BASE_URL)
                     .build();
@@ -320,6 +341,12 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
                 getProfileInformation();
             }
         }.execute(null, null, null);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mixPanel.flush();
     }
 
     public static class CallbackReceiver extends BroadcastReceiver {

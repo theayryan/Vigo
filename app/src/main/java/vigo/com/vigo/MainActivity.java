@@ -19,8 +19,12 @@ import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -37,12 +41,24 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
     private LinearLayout mFutureRides;
     private LinearLayout mPastRides;
     private int tripId;
+    private MixpanelAPI mixpanel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mixpanel =
+                MixpanelAPI.getInstance(this, Constants.MIXPANEL_NUMBER);
+        JSONObject props = new JSONObject();
+        try {
+            props.put(Constants.CUSTOMER_ID, preferences.getString(Constants.AUTH_TOKEN, ""));
+            mixpanel.track("Main Activity", props);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        mixpanel.track("Main Activity", props);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerElementsContainer = findViewById(R.id.drawer_root_layout);
         mUserImage = (ImageView) findViewById(R.id.user_image);
@@ -56,7 +72,7 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
             dialog.setCancelable(true);
             dialog.show(getSupportFragmentManager(), "UtilityDialog");
         }
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         boolean is_logged_in = preferences.getBoolean(Constants.IS_LOGGED_IN,false);
         if(is_logged_in==false){
             Intent intent = new Intent(this, LoginScreen.class);
@@ -148,4 +164,11 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
             //call confirmation
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        mixpanel.flush();
+        super.onDestroy();
+    }
+
 }
