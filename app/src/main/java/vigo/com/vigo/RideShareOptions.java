@@ -58,6 +58,7 @@ public class RideShareOptions extends Fragment implements View.OnClickListener, 
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint(Constants.BASE_URL)
                 .build();
+        restAdapter.setLogLevel(RestAdapter.LogLevel.FULL);
         rideShareApi = restAdapter.create(VigoApi.class);
         rideShareApi.showOptions(
                 args.source,

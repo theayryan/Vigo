@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -80,6 +81,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
     private boolean BOOK_PRESSED = false;
     private ProgressDialog mPDialog;
     private SharedPreferences pref;
+    private ImageView mBack;
 
     public void showProgressDialog() {
         if (mPDialog == null) {
@@ -104,6 +106,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
         restAdapter.setLogLevel(RestAdapter.LogLevel.FULL);
         bookApi = restAdapter.create(VigoApi.class);
         argument = this.getArguments();
+        mBack = (ImageView) rootView.findViewById(R.id.back_button_image);
         mGroup = (RadioGroup) rootView.findViewById(R.id.radiogroup);
         mName = (TextView) rootView.findViewById(R.id.name);
         mPickUpPoint = (TextView) rootView.findViewById(R.id.pickup_point);
@@ -129,6 +132,12 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
         mBookButton.setTypeface(mBree);
         mBookButton.setOnClickListener(this);
         mRideShare.setOnClickListener(this);
+        mBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mActivity.onBackPressed();
+            }
+        });
         mModeTransport.setTypeface(mBree);
 
 
@@ -216,12 +225,16 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
                 break;
             case R.id.ride_share:
                 BOOK_PRESSED = false;
+                showProgressDialog();
                 sendDistance();
                 break;
         }
     }
 
     public void sendRideShare() {
+        if (mPDialog.isShowing()) {
+            mPDialog.dismiss();
+        }
         String autoMode = getModeofTransport(mGroup.getCheckedRadioButtonId());
         if (TextUtils.isEmpty(autoMode)) {
             Toast.makeText(mActivity, R.string.choose_mode_transport, Toast.LENGTH_LONG).show();
@@ -403,6 +416,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
                     @Override
                     public void failure(RetrofitError error) {
                         error.printStackTrace();
+                        error.getKind();
                         if (mPDialog.isShowing()) {
                             mPDialog.dismiss();
                         }

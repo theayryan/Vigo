@@ -1,5 +1,6 @@
 package vigo.com.vigo;
 
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
@@ -27,6 +28,20 @@ public class PastRidesActivity extends ActionBarActivity {
     private Typeface mBree;
     private SharedPreferences pref;
 
+    private ProgressDialog mPDialog;
+
+    public void showProgressDialog() {
+        if (mPDialog == null) {
+            mPDialog = new ProgressDialog(this);
+            mPDialog.setMessage("Fetching");
+            mPDialog.show();
+        } else if (!mPDialog.isShowing()) {
+            mPDialog.setMessage("Fetching");
+            mPDialog.show();
+        }
+        mPDialog.setCancelable(true);
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,9 +55,11 @@ public class PastRidesActivity extends ActionBarActivity {
         mNoRides.setText("No Future Rides Booked");
         mBree = Typeface.createFromAsset(getAssets(), "fonts/BreeSerif-Regular.ttf");
         mNoRides.setTypeface(mBree);
+        showProgressDialog();
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint(Constants.BASE_URL)
                 .build();
+        restAdapter.setLogLevel(RestAdapter.LogLevel.FULL);
         ridesApi = restAdapter.create(VigoApi.class);
         ridesApi.getPastRides(pref.getString(Constants.AUTH_TOKEN, ""), new Callback<RidesClass>() {
             @Override
@@ -50,16 +67,21 @@ public class PastRidesActivity extends ActionBarActivity {
                 if(rides.ride!=null&&rides.ride.size()>0) {
                     mPastRidesAdapter = new PastRidesAdapter(PastRidesActivity.this, rides.ride, PastRidesActivity.this);
                     mMyRides.setAdapter(mPastRidesAdapter);
+
                 }
                 else{
                     mMyRides.setVisibility(View.GONE);
                     mNoRides.setVisibility(View.VISIBLE);
                 }
+                if (mPDialog.isShowing())
+                    mPDialog.dismiss();
             }
 
             @Override
             public void failure(RetrofitError error) {
                 error.printStackTrace();
+                if (mPDialog.isShowing())
+                    mPDialog.dismiss();
             }
         });
     }

@@ -73,6 +73,7 @@ public class FutureRidesAdapter extends ArrayAdapter<Book> {
                 RestAdapter restAdapter = new RestAdapter.Builder()
                         .setEndpoint(Constants.BASE_URL)
                         .build();
+                restAdapter.setLogLevel(RestAdapter.LogLevel.FULL);
                 cancelApi = restAdapter.create(VigoApi.class);
                 cancelApi.cancelRide(objects.get(position).trip_id, new Callback<Response>() {
                     @Override
