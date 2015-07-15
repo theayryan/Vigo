@@ -67,19 +67,6 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
     private LatLng searchLatlng;
     private CharSequence sourceString;
     private CharSequence destString;
-    private AdapterView.OnItemClickListener mAutocompleteClickListener
-            = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            final PlacesArrayAdapter.PlaceAutocomplete item = mPlaceArrayAdapter.getItem(position);
-            final String placeId = String.valueOf(item.placeId);
-            Log.i("Selected", "Selected: " + item.description);
-            PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
-                    .getPlaceById(mGoogleApiClient, placeId);
-            placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
-            Log.i("Fetching", "Fetching details for ID: " + item.placeId);
-        }
-    };
     private MixpanelAPI mixPanel;
     private Map<String, Object> userSearch;
     private SharedPreferences pref;
@@ -121,6 +108,19 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
                 userSearch.put("searched_for_address", place.getName());
                 mixPanel.trackMap("User Searches", userSearch);
             }
+        }
+    };
+    private AdapterView.OnItemClickListener mAutocompleteClickListener
+            = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            final PlacesArrayAdapter.PlaceAutocomplete item = mPlaceArrayAdapter.getItem(position);
+            final String placeId = String.valueOf(item.placeId);
+            Log.i("Selected", "Selected: " + item.description);
+            PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
+                    .getPlaceById(mGoogleApiClient, placeId);
+            placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
+            Log.i("Fetching", "Fetching details for ID: " + item.placeId);
         }
     };
 
@@ -347,6 +347,7 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
                     }
 
                 });
+                mConfirmButton.setVisibility(View.VISIBLE);
                 break;
             case R.id.confirm_button:
 
@@ -356,7 +357,7 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
                     argumentsBooking.putDouble(Constants.SOURCE_LAT,searchLatlng.latitude);
                     argumentsBooking.putDouble(Constants.SOURCE_LON,searchLatlng.longitude);
                     mSearchBox.setHint("Chose Destination");
-
+                    mConfirmButton.setVisibility(View.GONE);
                 }
                 else if(DESTINATION_CHOSEN==false){
                     DESTINATION_CHOSEN=true;

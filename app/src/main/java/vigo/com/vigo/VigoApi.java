@@ -145,6 +145,13 @@ public interface VigoApi {
             Callback<Response> callback
     );
 
+    @POST(Constants.OTP)
+    public void generateOtp(
+            @Query(Constants.CUSTOMER_ID) String customer_id,
+            @Query("contact") String contact,
+            Callback<Response> callback
+    );
+
 }
 
 

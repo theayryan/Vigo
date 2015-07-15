@@ -54,4 +54,5 @@ public class Constants {
     public static final String CONTRACTOR_CANCELLED = "CONTRACTOR_CANCELLED";
     public static final String TEXT = "text";
     public static final String GENDER = "gender";
+    public static final String OTP = "/otp";
 }

@@ -52,7 +52,7 @@ public class PastRidesActivity extends ActionBarActivity {
         mMyRides = (ListView) findViewById(R.id.rides_listView);
         mMyRides.setDividerHeight(0);
         mNoRides = (TextView) findViewById(R.id.no_rides);
-        mNoRides.setText("No Future Rides Booked");
+        mNoRides.setText("No Past Rides Booked");
         mBree = Typeface.createFromAsset(getAssets(), "fonts/BreeSerif-Regular.ttf");
         mNoRides.setTypeface(mBree);
         showProgressDialog();

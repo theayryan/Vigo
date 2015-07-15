@@ -205,8 +205,9 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
                 }
                 if(TextUtils.isEmpty(personName)||TextUtils.isEmpty(personPhotoUrl)||TextUtils.isEmpty(regid))
                     return;
-
-                pref.edit().putString(Constants.USER_EMAIL, email)
+                Log.d("PROFILE DETAILS", "called");
+                pref.edit()
+                        .putString(Constants.USER_EMAIL, email)
                         .putString(Constants.USER_NAME, personName)
                         .putString(Constants.USER_PIC, personPhotoUrl)
                         .putBoolean(Constants.IS_LOGGED_IN, true)
@@ -214,6 +215,7 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
                         .putString(Constants.AUTH_TOKEN, AUTH_TOKEN)
                         .putString(Constants.GENDER, gender)
                         .commit();
+                Log.d("AUTH_TOKEN", AUTH_TOKEN);
 
                 if(mDialog.isShowing()){
                     mDialog.dismiss();
@@ -248,13 +250,14 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
             String user_number = number;
             pref.edit().putString(Constants.USER_NUMBER, user_number).commit();
 
-            mixPanel.getPeople().identify(Constants.AUTH_TOKEN);
+            mixPanel.getPeople().identify(pref.getString(Constants.AUTH_TOKEN, ""));
 
             userDetails.put(Constants.CUSTOMER_ID, pref.getString(Constants.AUTH_TOKEN, ""));
             userDetails.put(Constants.SHARE_REG_ID, regid);
             userDetails.put(Constants.USER_NAME, pref.getString(Constants.USER_NAME, ""));
             userDetails.put(Constants.USER_EMAIL, pref.getString(Constants.USER_EMAIL, ""));
             userDetails.put(Constants.USER_NUMBER, pref.getString(Constants.USER_NUMBER, ""));
+            Log.d("AUTH_TOKEN", AUTH_TOKEN);
             if (!TextUtils.isEmpty(gender))
                 userDetails.put("user_gender", gender);
             mixPanel.getPeople().setMap(userDetails);
@@ -297,16 +300,15 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
                             if (result.contains("UNSUCCESSFUL")) {
                                 Toast.makeText(getApplicationContext(), "Some Error Occurred. Please Try Again.", Toast.LENGTH_SHORT).show();
                             } else {
-                                Intent intent = new Intent(LoginScreen.this, MainActivity.class);
-                                startActivity(intent);
-                                LoginScreen.this.finish();
+                                generateOtp();
                             }
                         }
 
                         @Override
                         public void failure(RetrofitError error) {
                             error.printStackTrace();
-                            Toast.makeText(getApplicationContext(), "Some Error Occurred. Please Try Again.", Toast.LENGTH_SHORT).show();
+                            if (error.getKind() == RetrofitError.Kind.NETWORK)
+                                Toast.makeText(getApplicationContext(), "Network error occurred. Please fix and try again.", Toast.LENGTH_SHORT).show();
                         }
                     }
             );
@@ -314,6 +316,55 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
         }
 
 
+    }
+
+    public void generateOtp() {
+        registerApi.generateOtp(
+                pref.getString(Constants.AUTH_TOKEN, ""),
+                pref.getString(Constants.USER_NUMBER, ""),
+                new Callback<Response>() {
+                    @Override
+                    public void success(Response response, Response response2) {
+                        BufferedReader reader = null;
+                        StringBuilder sb = new StringBuilder();
+                        try {
+
+                            reader = new BufferedReader(new InputStreamReader(response.getBody().in()));
+
+                            String line;
+
+                            try {
+                                while ((line = reader.readLine()) != null) {
+                                    sb.append(line);
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        String result = sb.toString();
+                        Log.d("Response", result);
+                        if (result.contains("UNSUCCESSFUL")) {
+                            Toast.makeText(getApplicationContext(), "Verification did not succeed please try again from the menu.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Number Verified", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        error.printStackTrace();
+                        if (error.getKind() == RetrofitError.Kind.NETWORK)
+                            Toast.makeText(getApplicationContext(), "Network Error Occurred Try Again From The Menu", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+        Intent intent = new Intent(LoginScreen.this, MainActivity.class);
+        startActivity(intent);
+        LoginScreen.this.finish();
     }
 
     public void getRegId() {
@@ -438,6 +489,8 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
 
                 LoginScreen.PROFILE_DATA = new JSONObject(this.GOOGLE_USER_DATA);
                 AUTH_TOKEN = token;
+                Log.d("AUTH_TOKEN", AUTH_TOKEN);
+
                 return;
             } else if (sc == 401) {
                 GoogleAuthUtil.invalidateToken(mActivity, token);
