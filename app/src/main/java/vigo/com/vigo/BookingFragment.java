@@ -82,6 +82,8 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
     private ProgressDialog mPDialog;
     private SharedPreferences pref;
     private ImageView mBack;
+    private Typeface mButtonFont;
+    private Typeface mCabin;
 
     public void showProgressDialog() {
         if (mPDialog == null) {
@@ -117,19 +119,22 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
         mModeTransport = (TextView) rootView.findViewById(R.id.mode_of_transport);
         mHeading = (TextView) rootView.findViewById(R.id.heading);
 
+        mButtonFont = Typeface.createFromAsset(mActivity.getAssets(), "fonts/Button_Font.ttf");
         mBree = Typeface.createFromAsset(mActivity.getAssets(), "fonts/BreeSerif-Regular.ttf");
+        mCabin = Typeface.createFromAsset(mActivity.getAssets(), "fonts/Cabin-Regular.ttf");
+
         mHeading.setTypeface(mBree, Typeface.BOLD);
         mHeading.setText("Booking Details");
 
 
-        mTimePicker.setTypeface(mBree);
-        mDatePicker.setTypeface(mBree);
-        mPickUpPoint.setTypeface(mBree);
-        mDropPoint.setTypeface(mBree);
-        mName.setTypeface(mBree);
-        mRideShare.setTypeface(mBree);
+        mTimePicker.setTypeface(mCabin);
+        mDatePicker.setTypeface(mCabin);
+        mPickUpPoint.setTypeface(mCabin);
+        mDropPoint.setTypeface(mCabin);
+        mName.setTypeface(mCabin);
+        mRideShare.setTypeface(mButtonFont);
         mBookButton = (Button) rootView.findViewById(R.id.Book);
-        mBookButton.setTypeface(mBree);
+        mBookButton.setTypeface(mButtonFont);
         mBookButton.setOnClickListener(this);
         mRideShare.setOnClickListener(this);
         mBack.setOnClickListener(new View.OnClickListener() {
@@ -138,7 +143,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
                 mActivity.onBackPressed();
             }
         });
-        mModeTransport.setTypeface(mBree);
+        mModeTransport.setTypeface(mCabin);
 
 
         mPickUpPoint.setTextColor(mActivity.getResources().getColor(R.color.Black));

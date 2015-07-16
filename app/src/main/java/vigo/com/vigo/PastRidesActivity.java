@@ -29,6 +29,7 @@ public class PastRidesActivity extends ActionBarActivity {
     private SharedPreferences pref;
 
     private ProgressDialog mPDialog;
+    private Typeface mCabin;
 
     public void showProgressDialog() {
         if (mPDialog == null) {
@@ -53,8 +54,8 @@ public class PastRidesActivity extends ActionBarActivity {
         mMyRides.setDividerHeight(0);
         mNoRides = (TextView) findViewById(R.id.no_rides);
         mNoRides.setText("No Past Rides Booked");
-        mBree = Typeface.createFromAsset(getAssets(), "fonts/BreeSerif-Regular.ttf");
-        mNoRides.setTypeface(mBree);
+        mCabin = Typeface.createFromAsset(getAssets(), "fonts/Cabin-Regular.ttf");
+        mNoRides.setTypeface(mCabin);
         showProgressDialog();
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint(Constants.BASE_URL)

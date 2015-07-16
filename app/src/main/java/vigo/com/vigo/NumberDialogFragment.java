@@ -34,9 +34,9 @@ public class NumberDialogFragment extends DialogFragment implements View.OnClick
     private Button mEight;
     private Button mNine;
     private Button mZero;
-    private Typeface mBree;
     private Typeface mComfortaa;
     private ImageButton mBack;
+    private Typeface mButtonFont;
 
     public static NumberDialogFragment getInstance(){
         instance = new NumberDialogFragment();
@@ -73,13 +73,15 @@ public class NumberDialogFragment extends DialogFragment implements View.OnClick
         mZero = (Button) rootView.findViewById(R.id.zero);
         mBack = (ImageButton) rootView.findViewById(R.id.back);
 
-        mBree = Typeface.createFromAsset(mActivity.getAssets(), "fonts/BreeSerif-Regular.ttf");
+        Typeface mCabin = Typeface.createFromAsset(mActivity.getAssets(), "fonts/Cabin-Regular.ttf");
         mComfortaa = Typeface.createFromAsset(mActivity.getAssets(), "fonts/Comfortaa-Regular.ttf");
+        mButtonFont = Typeface.createFromAsset(mActivity.getAssets(), "fonts/Button_Font.ttf");
 
-        dialogText.setTypeface(mBree);
-        getNumber.setTypeface(mBree);
-        ok.setTypeface(mBree);
-        mPlus91.setTypeface(mBree);
+
+        dialogText.setTypeface(mCabin);
+        getNumber.setTypeface(mCabin);
+        ok.setTypeface(mButtonFont);
+        mPlus91.setTypeface(mCabin);
 
         mOne.setOnClickListener(this);
         mTwo.setOnClickListener(this);

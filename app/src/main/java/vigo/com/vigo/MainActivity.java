@@ -42,6 +42,7 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
     private LinearLayout mPastRides;
     private int tripId;
     private MixpanelAPI mixpanel;
+    private Typeface mCabin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +64,9 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
         mDrawerElementsContainer = findViewById(R.id.drawer_root_layout);
         mUserImage = (ImageView) findViewById(R.id.user_image);
         mUserName = (TextView) findViewById(R.id.user_name);
-        mBree = Typeface.createFromAsset(getAssets(), "fonts/BreeSerif-Regular.ttf");
+        mCabin = Typeface.createFromAsset(getAssets(), "fonts/Cabin-Regular.ttf");
         mComfortaa = Typeface.createFromAsset(getAssets(), "fonts/Comfortaa-Regular.ttf");
+        mUserName.setTypeface(mCabin);
         String utilityText = getIntent().getStringExtra(Constants.TEXT);
         tripId = getIntent().getIntExtra(Constants.TRIP_ID, 0);
         if (!TextUtils.isEmpty(utilityText)) {
@@ -81,7 +83,7 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
         }
         else{
             mUserName.setText(preferences.getString(Constants.USER_NAME,""));
-            mUserName.setTypeface(mBree);
+            mUserName.setTypeface(mCabin);
             Transformation transformation = new RoundedTransformationBuilder()
                     .borderColor(getResources().getColor(R.color.appMainLight))
                     .borderWidthDp(3)

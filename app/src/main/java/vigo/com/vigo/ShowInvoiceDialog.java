@@ -22,6 +22,8 @@ public class ShowInvoiceDialog extends DialogFragment implements View.OnClickLis
     private Typeface mBree;
     private Typeface mComfortaa;
     private Activity mActivity;
+    private Typeface mCabin;
+    private Typeface mButtonFont;
 
     public static ShowInvoiceDialog getInstance(String actualFare, String distance, String timeTaken) {
         instance = new ShowInvoiceDialog();
@@ -73,13 +75,13 @@ public class ShowInvoiceDialog extends DialogFragment implements View.OnClickLis
 
         confirm.setOnClickListener(this);
 
-        mBree = Typeface.createFromAsset(mActivity.getAssets(), "fonts/BreeSerif-Regular.ttf");
         mComfortaa = Typeface.createFromAsset(mActivity.getAssets(), "fonts/Comfortaa-Regular.ttf");
-
-        actualFare.setTypeface(mBree);
-        distance.setTypeface(mBree);
-        timeTaken.setTypeface(mBree);
-        confirm.setTypeface(mBree);
+        mCabin = Typeface.createFromAsset(mActivity.getAssets(), "fonts/Cabin-Regular.ttf");
+        mButtonFont = Typeface.createFromAsset(mActivity.getAssets(), "fonts/Button_Font.ttf");
+        actualFare.setTypeface(mCabin);
+        distance.setTypeface(mCabin);
+        timeTaken.setTypeface(mCabin);
+        confirm.setTypeface(mButtonFont);
 
         actualFareValue.setTypeface(mComfortaa);
         distanceValue.setTypeface(mComfortaa);

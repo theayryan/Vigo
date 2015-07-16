@@ -42,6 +42,7 @@ public class RideShareOptions extends Fragment implements View.OnClickListener, 
     private Typeface mBree;
     private Typeface mComfortaa;
     private InvoiceDialog invoiceDialog;
+    private Typeface mButtonFont;
 
     @Nullable
     @Override
@@ -52,7 +53,8 @@ public class RideShareOptions extends Fragment implements View.OnClickListener, 
         mRidesList = (ListView) rootView.findViewById(R.id.ride_share_listView);
         mAddRideShare = (Button) rootView.findViewById(R.id.ride_share_button);
         mAddRideShare.setOnClickListener(this);
-        mAddRideShare.setTypeface(mBree);
+        mButtonFont = Typeface.createFromAsset(mActivity.getAssets(), "fonts/Button_Font.ttf");
+        mAddRideShare.setTypeface(mButtonFont);
         mRidesList.setOnItemClickListener(this);
         args = (Book) getArguments().getSerializable(Constants.DATA);
         RestAdapter restAdapter = new RestAdapter.Builder()

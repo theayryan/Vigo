@@ -32,7 +32,7 @@ public class PlacesArrayAdapter
         extends ArrayAdapter<PlacesArrayAdapter.PlaceAutocomplete> implements Filterable {
     private static final String TAG = "PlaceArrayAdapter";
     private final Context ctx;
-    private final Typeface mBree;
+    private final Typeface mCabin;
     private GoogleApiClient mGoogleApiClient;
     private AutocompleteFilter mPlaceFilter;
     private LatLngBounds mBounds;
@@ -52,7 +52,7 @@ public class PlacesArrayAdapter
         mBounds = bounds;
         ctx = context;
         mPlaceFilter = filter;
-        mBree = Typeface.createFromAsset(ctx.getAssets(), "fonts/BreeSerif-Regular.ttf");
+        mCabin = Typeface.createFromAsset(ctx.getAssets(), "fonts/Cabin-Regular.ttf");
     }
 
     @Override
@@ -63,7 +63,7 @@ public class PlacesArrayAdapter
             convertView = inflater.inflate(R.layout.autocomplete_listitem, parent, false);
         }
         TextView searchItem = (TextView) convertView.findViewById(R.id.search_item);
-        searchItem.setTypeface(mBree);
+        searchItem.setTypeface(mCabin);
         searchItem.setText(mResultList.get(position).description);
         return convertView;
     }

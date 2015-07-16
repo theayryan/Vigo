@@ -13,6 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="30dip"
+        android:layout_marginTop="80dip"
         android:text="Vigo"
         android:textColor="@color/appMainLight"
         android:textSize="60sp" />
@@ -22,19 +23,43 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="30dip"
-        android:layout_marginTop="30dip"
+        android:layout_marginTop="50dip"
         android:text="Wherever You Want To Go"
         android:textColor="@color/appMainLight"
         android:textSize="30sp" />
 
-    <com.google.android.gms.common.SignInButton
+
+    <LinearLayout
         android:id="@+id/btn_sign_in"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:layout_marginLeft="80dip"
         android:layout_marginRight="80dip"
-        android:layout_marginTop="60dip" />
+        android:layout_marginTop="80dip"
+        android:background="@drawable/sign_in_button_background"
+        android:orientation="vertical"
+        android:padding="20dp"
+        >
+
+        <TextView
+            android:id="@+id/sign_in_text"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:text="Sign In With Google"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_marginTop="5dip"
+            android:src="@drawable/powered_by_google_light"
+            />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/btn_sign_out"
@@ -43,7 +68,8 @@
         android:layout_marginBottom="20dp"
         android:layout_marginLeft="80dip"
         android:layout_marginRight="80dip"
-        android:layout_marginTop="60dip"
+        android:layout_marginTop="80dip"
         android:text="@string/btn_logout_from_google"
         android:visibility="gone" />
+
 </LinearLayout>

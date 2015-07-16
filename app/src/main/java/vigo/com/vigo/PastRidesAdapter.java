@@ -20,8 +20,8 @@ import java.util.List;
 public class PastRidesAdapter extends ArrayAdapter<Book> {
     private final List<Book> objects;
     private final WeakReference<FragmentActivity> activity;
-    private final Typeface mBree;
     private final Typeface mComfortaa;
+    private final Typeface mCabin;
     WeakReference<Context> context;
 
     public PastRidesAdapter(Context context, List<Book> objects, FragmentActivity activity) {
@@ -29,7 +29,7 @@ public class PastRidesAdapter extends ArrayAdapter<Book> {
         this.context = new WeakReference<Context>(context);
         this.objects = objects;
         this.activity = new WeakReference<FragmentActivity>(activity);
-        mBree = Typeface.createFromAsset(activity.getAssets(), "fonts/BreeSerif-Regular.ttf");
+        mCabin = Typeface.createFromAsset(activity.getAssets(), "fonts/Cabin-Regular.ttf");
         mComfortaa = Typeface.createFromAsset(activity.getAssets(), "fonts/Comfortaa-Regular.ttf");
     }
 
@@ -70,8 +70,8 @@ public class PastRidesAdapter extends ArrayAdapter<Book> {
         destination.setText(objects.get(position).destination);
         dateTV.setTypeface(mComfortaa);
         timeTV.setTypeface(mComfortaa);
-        source.setTypeface(mBree);
-        destination.setTypeface(mBree);
+        source.setTypeface(mCabin);
+        destination.setTypeface(mCabin);
         return convertView;
     }
 }

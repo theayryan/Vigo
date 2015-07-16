@@ -123,6 +123,7 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
             Log.i("Fetching", "Fetching details for ID: " + item.placeId);
         }
     };
+    private Typeface mButtonFont;
 
     public static void hideSoftKeyboard(Activity activity) {
         InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -153,15 +154,17 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
                     mSearchBox.setText("");
             }
         });
+        mButtonFont = Typeface.createFromAsset(mActivity.getAssets(), "fonts/Button_Font.ttf");
+        Typeface mCabin = Typeface.createFromAsset(mActivity.getAssets(), "fonts/Cabin-Regular.ttf");
+
         mMarkerImage.setVisibility(View.INVISIBLE);
         mSearchImage.setOnClickListener(this);
         mNowButton.setOnClickListener(this);
         mLaterButton.setOnClickListener(this);
         mConfirmButton.setOnClickListener(this);
-        mBree = Typeface.createFromAsset(mActivity.getAssets(), "fonts/BreeSerif-Regular.ttf");
-        mConfirmButton.setTypeface(mBree);
-        mLaterButton.setTypeface(mBree);
-        mNowButton.setTypeface(mBree);
+        mConfirmButton.setTypeface(mButtonFont);
+        mLaterButton.setTypeface(mButtonFont);
+        mNowButton.setTypeface(mButtonFont);
         mMap.onCreate(savedInstanceState);
         googleMap = mMap.getMap();
         mGoogleApiClient = new GoogleApiClient
@@ -179,7 +182,7 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
                 latLngBounds, null);
 
         mSearchBox.setAdapter(mPlaceArrayAdapter);
-        mSearchBox.setTypeface(mBree);
+        mSearchBox.setTypeface(mCabin);
         mSearchBox.setHint("Choose Pick Up Point");
         SOURCE_CHOSEN = false;
 

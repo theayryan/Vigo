@@ -20,9 +20,10 @@ import android.widget.TextView;
 public class InvoiceDialog extends DialogFragment implements View.OnClickListener {
 
     private static InvoiceDialog instance;
-    private Typeface mBree;
     private Typeface mComfortaa;
     private Activity mActivity;
+    private Typeface mCabin;
+    private Typeface mButtonFont;
 
     public static InvoiceDialog getInstance(String actualFare, String totalFare, String discount, String timeTaken) {
         instance = new InvoiceDialog();
@@ -92,15 +93,17 @@ public class InvoiceDialog extends DialogFragment implements View.OnClickListene
         confirm.setOnClickListener(this);
         cancel.setOnClickListener(this);
 
-        mBree = Typeface.createFromAsset(mActivity.getAssets(), "fonts/BreeSerif-Regular.ttf");
         mComfortaa = Typeface.createFromAsset(mActivity.getAssets(), "fonts/Comfortaa-Regular.ttf");
+        mCabin = Typeface.createFromAsset(mActivity.getAssets(), "fonts/Cabin-Regular.ttf");
+        mButtonFont = Typeface.createFromAsset(mActivity.getAssets(), "fonts/Button_Font.ttf");
 
-        actualFare.setTypeface(mBree);
-        totalFare.setTypeface(mBree);
-        discount.setTypeface(mBree);
-        timeTaken.setTypeface(mBree);
-        confirm.setTypeface(mBree);
-        cancel.setTypeface(mBree);
+
+        actualFare.setTypeface(mCabin);
+        totalFare.setTypeface(mCabin);
+        discount.setTypeface(mCabin);
+        timeTaken.setTypeface(mCabin);
+        confirm.setTypeface(mButtonFont);
+        cancel.setTypeface(mButtonFont);
 
         actualFareValue.setTypeface(mComfortaa);
         totalFareValue.setTypeface(mComfortaa);

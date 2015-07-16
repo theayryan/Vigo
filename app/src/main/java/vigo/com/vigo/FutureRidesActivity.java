@@ -28,6 +28,7 @@ public class FutureRidesActivity extends ActionBarActivity {
     private Typeface mBree;
     private SharedPreferences pref;
     private ProgressDialog mPDialog;
+    private Typeface mCabin;
 
     public void showProgressDialog() {
         if (mPDialog == null) {
@@ -51,8 +52,8 @@ public class FutureRidesActivity extends ActionBarActivity {
         mMyRides = (ListView) findViewById(R.id.rides_listView);
         mNoRides = (TextView) findViewById(R.id.no_rides);
         mNoRides.setText("No Future Rides Booked");
-        mBree = Typeface.createFromAsset(getAssets(), "fonts/BreeSerif-Regular.ttf");
-        mNoRides.setTypeface(mBree);
+        mCabin = Typeface.createFromAsset(getAssets(), "fonts/Cabin-Regular.ttf");
+        mNoRides.setTypeface(mCabin);
         mMyRides.setDividerHeight(0);
         showProgressDialog();
         RestAdapter restAdapter = new RestAdapter.Builder()

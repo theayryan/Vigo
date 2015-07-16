@@ -28,7 +28,6 @@ import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
 import com.google.android.gms.auth.UserRecoverableAuthException;
-import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 
@@ -65,7 +64,7 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
     AccountManager mAccountManager;
     String token;
     int serverCode;
-    private SignInButton btnSignIn;
+    private LinearLayout btnSignIn;
     private Button btnSignOut;
     private SharedPreferences pref;
     private Typeface mComfortaa;
@@ -82,6 +81,7 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
     private MixpanelAPI mixPanel;
     private Map<String, Object> userDetails;
     private String gender;
+    private Typeface mButtonFont;
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
@@ -92,18 +92,21 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
         mixPanel = MixpanelAPI.getInstance(this, Constants.MIXPANEL_NUMBER);
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         background = (LinearLayout) findViewById(R.id.login_background);
-        btnSignIn = (SignInButton) findViewById(R.id.btn_sign_in);
+        btnSignIn = (LinearLayout) findViewById(R.id.btn_sign_in);
         btnSignOut = (Button) findViewById(R.id.btn_sign_out);
         mHeading = (TextView) findViewById(R.id.app_name);
         mSubHeading = (TextView) findViewById(R.id.app_subtitle);
         mDialog = new ProgressDialog(this);
+
 
         btnSignIn.setOnClickListener(this);
         btnSignOut.setOnClickListener(this);
 
         mBree = Typeface.createFromAsset(getAssets(), "fonts/BreeSerif-Regular.ttf");
         mComfortaa = Typeface.createFromAsset(getAssets(), "fonts/Comfortaa-Regular.ttf");
-
+        mButtonFont = Typeface.createFromAsset(getAssets(), "fonts/Button_Font.ttf");
+        TextView mSignInText = (TextView) findViewById(R.id.sign_in_text);
+        mSignInText.setTypeface(mButtonFont);
         mHeading.setTypeface(mBree);
         mSubHeading.setTypeface(mComfortaa);
         userDetails = new HashMap<>();
@@ -349,8 +352,6 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
                         Log.d("Response", result);
                         if (result.contains("UNSUCCESSFUL")) {
                             Toast.makeText(getApplicationContext(), "Verification did not succeed please try again from the menu.", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(getApplicationContext(), "Number Verified", Toast.LENGTH_SHORT).show();
                         }
                     }
 
@@ -362,7 +363,7 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
                     }
                 }
         );
-        Intent intent = new Intent(LoginScreen.this, MainActivity.class);
+        Intent intent = new Intent(LoginScreen.this, VerifyActivity.class);
         startActivity(intent);
         LoginScreen.this.finish();
     }
