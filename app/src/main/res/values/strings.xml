@@ -24,4 +24,5 @@
     <string name="DRIVER_REACHED">Your driver is ready to pick you up.</string>
     <string name="TRIP_BEGAN_VERIFY">Please verify that your trip has begun.</string>
     <string name="booking_confirmed">Your booking has been made you can view details and cancel your booking from Your Future Rides</string>
+    <string name="verify">Verify OTP</string>
 </resources>
