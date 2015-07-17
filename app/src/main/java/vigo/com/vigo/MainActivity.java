@@ -67,6 +67,20 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
         mCabin = Typeface.createFromAsset(getAssets(), "fonts/Cabin-Regular.ttf");
         mComfortaa = Typeface.createFromAsset(getAssets(), "fonts/Comfortaa-Regular.ttf");
         mUserName.setTypeface(mCabin);
+        LinearLayout mVerify = (LinearLayout) findViewById(R.id.verify);
+        if (!preferences.getBoolean(Constants.OTP, false)) {
+
+            mVerify.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getApplicationContext(), VerifyActivity.class);
+                    startActivity(intent);
+                    overridePendingTransition(R.anim.right_in, R.anim.left_out);
+                }
+            });
+        } else {
+            mVerify.setVisibility(View.GONE);
+        }
         String utilityText = getIntent().getStringExtra(Constants.TEXT);
         tripId = getIntent().getIntExtra(Constants.TRIP_ID, 0);
         if (!TextUtils.isEmpty(utilityText)) {
@@ -79,6 +93,7 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
         if(is_logged_in==false){
             Intent intent = new Intent(this, LoginScreen.class);
             startActivity(intent);
+            overridePendingTransition(R.anim.right_in, R.anim.left_out);
             finish();
         }
         else{
@@ -104,6 +119,7 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this,FutureRidesActivity.class);
                 startActivity(intent);
+                overridePendingTransition(R.anim.right_in, R.anim.left_out);
             }
         });
         mPastRides.setOnClickListener(new View.OnClickListener() {
@@ -111,6 +127,7 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this,PastRidesActivity.class);
                 startActivity(intent);
+                overridePendingTransition(R.anim.right_in, R.anim.left_out);
             }
         });
 

@@ -86,7 +86,6 @@
                 android:src="@android:drawable/ic_menu_close_clear_cancel" />
         </LinearLayout>
 
-
         <ImageView
             android:id="@+id/search_image"
             android:layout_width="wrap_content"

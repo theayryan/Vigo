@@ -271,6 +271,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
         RideShareOptions shareFragment = new RideShareOptions();
         shareFragment.setArguments(arguments);
         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.right_in, R.anim.left_out);
         transaction.replace(R.id.maps_fragment, shareFragment);
         transaction.addToBackStack(null);
         transaction.commit();

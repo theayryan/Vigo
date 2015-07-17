@@ -303,7 +303,10 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
                             if (result.contains("UNSUCCESSFUL")) {
                                 Toast.makeText(getApplicationContext(), "Some Error Occurred. Please Try Again.", Toast.LENGTH_SHORT).show();
                             } else {
-                                generateOtp();
+                                Intent intent = new Intent(LoginScreen.this, VerifyActivity.class);
+                                startActivity(intent);
+                                overridePendingTransition(R.anim.right_in, R.anim.left_out);
+                                LoginScreen.this.finish();
                             }
                         }
 
@@ -321,52 +324,7 @@ public class LoginScreen extends ActionBarActivity implements View.OnClickListen
 
     }
 
-    public void generateOtp() {
-        registerApi.generateOtp(
-                pref.getString(Constants.AUTH_TOKEN, ""),
-                pref.getString(Constants.USER_NUMBER, ""),
-                new Callback<Response>() {
-                    @Override
-                    public void success(Response response, Response response2) {
-                        BufferedReader reader = null;
-                        StringBuilder sb = new StringBuilder();
-                        try {
 
-                            reader = new BufferedReader(new InputStreamReader(response.getBody().in()));
-
-                            String line;
-
-                            try {
-                                while ((line = reader.readLine()) != null) {
-                                    sb.append(line);
-                                }
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-
-                        String result = sb.toString();
-                        Log.d("Response", result);
-                        if (result.contains("UNSUCCESSFUL")) {
-                            Toast.makeText(getApplicationContext(), "Verification did not succeed please try again from the menu.", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void failure(RetrofitError error) {
-                        error.printStackTrace();
-                        if (error.getKind() == RetrofitError.Kind.NETWORK)
-                            Toast.makeText(getApplicationContext(), "Network Error Occurred Try Again From The Menu", Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );
-        Intent intent = new Intent(LoginScreen.this, VerifyActivity.class);
-        startActivity(intent);
-        LoginScreen.this.finish();
-    }
 
     public void getRegId() {
         new AsyncTask<Void, Void, String>() {

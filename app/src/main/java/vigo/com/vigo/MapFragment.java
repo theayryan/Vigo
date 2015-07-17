@@ -97,9 +97,10 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
                     argumentsBooking.putString(Constants.DEST_STRING, place.getName().toString());
                 }
             } else {
-
-                Toast.makeText(mActivity, "Currently we only have pick-ups from Noida, Greater Noida and Dadri", Toast.LENGTH_SHORT).show();
-                mSearchBox.setText("");
+                if (SOURCE_CHOSEN == false) {
+                    Toast.makeText(mActivity, "Currently we only have pick-ups from Noida, Greater Noida and Dadri", Toast.LENGTH_SHORT).show();
+                    mSearchBox.setText("");
+                }
                 userSearch.put(Constants.CUSTOMER_ID, pref.getString(Constants.AUTH_TOKEN, ""));
                 userSearch.put(Constants.GENDER, pref.getString(Constants.GENDER, ""));
                 userSearch.put(Constants.SHARE_REG_ID, pref.getString(Constants.GCM_REG_ID, ""));
@@ -300,10 +301,11 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
 
                 if(SOURCE_CHOSEN==true) {
                     if (DESTINATION_CHOSEN == true) {
-                        argumentsBooking.putBoolean(Constants.NOW,true);
+                        argumentsBooking.putBoolean(Constants.NOW, true);
                         BookingFragment bookingFragment = new BookingFragment();
                         bookingFragment.setArguments(argumentsBooking);
                         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                        transaction.setCustomAnimations(R.anim.right_in, R.anim.left_out);
                         transaction.replace(R.id.maps_fragment, bookingFragment);
                         transaction.addToBackStack(null);
                         transaction.commit();
@@ -322,6 +324,7 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
                         BookingFragment bookingFragment = new BookingFragment();
                         bookingFragment.setArguments(argumentsBooking);
                         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                        transaction.setCustomAnimations(R.anim.right_in, R.anim.left_out);
                         transaction.replace(R.id.maps_fragment, bookingFragment);
                         transaction.addToBackStack(null);
                         transaction.commit();

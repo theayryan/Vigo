@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -37,6 +38,9 @@ public class VerifyActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.otp_verification_layout);
+
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
+
         TextView mHeading = (TextView) findViewById(R.id.verify_otp);
         final EditText mUserEnteredOtp = (EditText) findViewById(R.id.otp_user_entered);
         Button mVerify = (Button) findViewById(R.id.verify_button);
@@ -51,6 +55,7 @@ public class VerifyActivity extends Activity {
                 .build();
         restAdapter.setLogLevel(RestAdapter.LogLevel.FULL);
         otpApi = restAdapter.create(VigoApi.class);
+        generateOtp();
         mVerify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,11 +91,14 @@ public class VerifyActivity extends Activity {
                                     if (!result.contains("NOT_VERIFIED")) {
                                         Log.d("RECIEVED", "positive");
                                         Toast.makeText(getApplicationContext(), "Your Number Has Been Verified", Toast.LENGTH_LONG).show();
+                                        pref.edit().putBoolean(Constants.OTP, true);
                                     } else {
                                         Toast.makeText(getApplicationContext(), "Your Number Could Not Get Verified Please Try Again Later", Toast.LENGTH_LONG).show();
                                     }
                                     Intent intent = new Intent(VerifyActivity.this, MainActivity.class);
                                     startActivity(intent);
+                                    overridePendingTransition(R.anim.right_in, R.anim.left_out);
+                                    VerifyActivity.this.finish();
                                 }
 
                                 @Override
@@ -105,5 +113,49 @@ public class VerifyActivity extends Activity {
             }
         });
 
+    }
+
+    public void generateOtp() {
+        otpApi.generateOtp(
+                pref.getString(Constants.AUTH_TOKEN, ""),
+                pref.getString(Constants.USER_NUMBER, ""),
+                new Callback<Response>() {
+                    @Override
+                    public void success(Response response, Response response2) {
+                        BufferedReader reader = null;
+                        StringBuilder sb = new StringBuilder();
+                        try {
+
+                            reader = new BufferedReader(new InputStreamReader(response.getBody().in()));
+
+                            String line;
+
+                            try {
+                                while ((line = reader.readLine()) != null) {
+                                    sb.append(line);
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        String result = sb.toString();
+                        Log.d("Response", result);
+                        if (result.contains("UNSUCCESSFUL")) {
+                            Toast.makeText(getApplicationContext(), "Verification did not succeed please try again from the menu.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        error.printStackTrace();
+                        if (error.getKind() == RetrofitError.Kind.NETWORK)
+                            Toast.makeText(getApplicationContext(), "Network Error Occurred Try Again From The Menu", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
     }
 }
