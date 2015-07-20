@@ -257,8 +257,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
         Book args = new Book();
         args.source = mPickUpPoint.getText().toString();
         args.destination = mDropPoint.getText().toString();
-        args.date = date;
-        args.time = time;
+        args.time = Integer.toString(getTime());
         args.customer_id = pref.getString(Constants.AUTH_TOKEN, "");
         args.vehical_type = autoMode;
         args.source_lat = Double.toString(argument.getDouble(Constants.SOURCE_LAT));
@@ -488,8 +487,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
         bookApi.makeBooking(
                 mPickUpPoint.getText().toString(),
                 mDropPoint.getText().toString(),
-                date,
-                time,
+                Integer.toString(getTime()),
                 mode,
                 pref.getString(Constants.AUTH_TOKEN, ""),
                 Double.toString(argument.getDouble(Constants.SOURCE_LAT)),

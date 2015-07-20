@@ -89,26 +89,28 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
             } else {
                 onResult(places);
             }
-            if (address.contains("Dadri") || address.contains("Noida") || address.contains("Greater Noida") || address.contains("Gautam Buddha Nagar")) {
+
                 if (SOURCE_CHOSEN == false) {
-                    argumentsBooking.putString(Constants.SOURCE_STRING, place.getName().toString());
+                    if (address.contains("Dadri") || address.contains("Noida") || address.contains("Greater Noida") || address.contains("Gautam Buddha Nagar")) {
+                        argumentsBooking.putString(Constants.SOURCE_STRING, place.getName().toString());
+                    } else {
+                        if (SOURCE_CHOSEN == false) {
+                            Toast.makeText(mActivity, "Currently we only have pick-ups from Noida, Greater Noida and Dadri", Toast.LENGTH_SHORT).show();
+                            mSearchBox.setText("");
+                        }
+                        userSearch.put(Constants.CUSTOMER_ID, pref.getString(Constants.AUTH_TOKEN, ""));
+                        userSearch.put(Constants.GENDER, pref.getString(Constants.GENDER, ""));
+                        userSearch.put(Constants.SHARE_REG_ID, pref.getString(Constants.GCM_REG_ID, ""));
+                        userSearch.put(Constants.USER_EMAIL, pref.getString(Constants.USER_EMAIL, ""));
+                        userSearch.put("searched_for_name", place.getName());
+                        userSearch.put("searched_for_address", place.getName());
+                        mixPanel.trackMap("User Searches", userSearch);
+                    }
                 } else if (DESTINATION_CHOSEN == false) {
                     destString = place.getAddress();
                     argumentsBooking.putString(Constants.DEST_STRING, place.getName().toString());
                 }
-            } else {
-                if (SOURCE_CHOSEN == false) {
-                    Toast.makeText(mActivity, "Currently we only have pick-ups from Noida, Greater Noida and Dadri", Toast.LENGTH_SHORT).show();
-                    mSearchBox.setText("");
-                }
-                userSearch.put(Constants.CUSTOMER_ID, pref.getString(Constants.AUTH_TOKEN, ""));
-                userSearch.put(Constants.GENDER, pref.getString(Constants.GENDER, ""));
-                userSearch.put(Constants.SHARE_REG_ID, pref.getString(Constants.GCM_REG_ID, ""));
-                userSearch.put(Constants.USER_EMAIL, pref.getString(Constants.USER_EMAIL, ""));
-                userSearch.put("searched_for_name", place.getName());
-                userSearch.put("searched_for_address", place.getName());
-                mixPanel.trackMap("User Searches", userSearch);
-            }
+
         }
     };
     private AdapterView.OnItemClickListener mAutocompleteClickListener

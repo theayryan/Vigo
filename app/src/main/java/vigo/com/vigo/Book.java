@@ -11,7 +11,6 @@ public class Book implements Serializable {
     int trip_id;
     String source;
     String destination;
-    String date;
     String time;
     String vehical_type;
     String customer_id;

@@ -17,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
+import java.util.Calendar;
 import java.util.List;
 
 import retrofit.Callback;
@@ -130,10 +131,11 @@ public class FutureRidesAdapter extends ArrayAdapter<Book> {
                 dialog.show(activity.get().getSupportFragmentManager(), "ShowInvoiceDialog");
             }
         });
-        String date =objects.get(position).date;
         String time = objects.get(position).time;
-        dateTV.setText(date);
-        timeTV.setText(time);
+        Calendar mydate = Calendar.getInstance();
+        mydate.setTimeInMillis((long) (Integer.getInteger(time, 0) * 1000));
+        dateTV.setText(mydate.get(Calendar.DAY_OF_MONTH) + "/" + mydate.get(Calendar.MONTH) + "/" + mydate.get(Calendar.YEAR));
+        timeTV.setText(mydate.get(Calendar.HOUR_OF_DAY) + ":" + mydate.get(Calendar.MINUTE));
         source.setText(objects.get(position).source);
         destination.setText(objects.get(position).destination);
         dateTV.setTypeface(mComfortaa);

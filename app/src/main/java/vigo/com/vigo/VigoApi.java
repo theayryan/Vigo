@@ -17,7 +17,6 @@ public interface VigoApi {
     @POST(Constants.BOOK_URL)
     public void makeBooking(@Field(Constants.SOURCE) String Source,
                             @Field(Constants.DESTINATION) String destination,
-                            @Field(Constants.DATE) String date,
                             @Field(Constants.TIME) String time,
                             @Field(Constants.VEHICAL_TYPE) String type,
                             @Field(Constants.CUSTOMER_ID) String id,
@@ -52,7 +51,6 @@ public interface VigoApi {
     public void showOptions(
             @Field(Constants.SOURCE) String source,
             @Field(Constants.DESTINATION) String dest,
-            @Field(Constants.DATE) String date,
             @Field(Constants.TIME) String time,
             @Field(Constants.VEHICAL_TYPE) String vehical_type,
             @Field(Constants.CUSTOMER_ID) String cust_id,
@@ -70,7 +68,6 @@ public interface VigoApi {
     public void addRideShare(
             @Field(Constants.SOURCE) String source,
             @Field(Constants.DESTINATION) String dest,
-            @Field(Constants.DATE) String date,
             @Field(Constants.TIME) String time,
             @Field(Constants.VEHICAL_TYPE) String vehical_type,
             @Field(Constants.CUSTOMER_ID) String cust_id,
@@ -89,7 +86,6 @@ public interface VigoApi {
             @Field(Constants.TRIP_ID) int trip_id,
             @Field(Constants.SOURCE) String source,
             @Field(Constants.DESTINATION) String dest,
-            @Field(Constants.DATE) String date,
             @Field(Constants.TIME) String time,
             @Field(Constants.VEHICAL_TYPE) String vehical_type,
             @Field(Constants.CUSTOMER_ID) String cust_id,
