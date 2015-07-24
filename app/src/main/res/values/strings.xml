@@ -25,4 +25,5 @@
     <string name="TRIP_BEGAN_VERIFY">Please verify that your trip has begun.</string>
     <string name="booking_confirmed">Your booking has been made you can view details and cancel your booking from Your Future Rides</string>
     <string name="verify">Verify OTP</string>
+    <string name="location_not_available">Your Current Location Isn\'t Available</string>
 </resources>

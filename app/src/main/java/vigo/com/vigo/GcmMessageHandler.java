@@ -51,16 +51,18 @@ public class GcmMessageHandler extends GcmListenerService {
          * In some cases it may be useful to show a notification indicating to the user
          * that a message was received.
          */
-        if (message.equalsIgnoreCase(Constants.DRIVER_REACHED)) {
-            String notify = "The driver for your trip from " + source + " to " + destination + " on " + date + " at " + time + " is waiting for you.";
-            sendNotification(getString(R.string.DRIVER_REACHED), "Message from Vigo", notify, 0);
-        } else if (message.equalsIgnoreCase(Constants.TRIP_BEGAN_VERIFY)) {
-            String notify = "Please verify that your trip from " + source + " to " + destination + " on " + date + " at " + time + " has started";
-            sendNotification(getString(R.string.TRIP_BEGAN_VERIFY), "Message from Vigo", notify, tripId);
-        } else if (message.equalsIgnoreCase(Constants.CONTRACTOR_CANCELLED)) {
-            String notify = "Your trip from " + source + " to " + destination + " on " + date + " at " + time + " has been cancelled by the contractor." +
-                    " We apologize for the convenience caused.";
-            sendNotification("Trip Cancelled : Expand to view details", "Message from Vigo", notify, 0);
+        if (!TextUtils.isEmpty(message)) {
+            if (message.equalsIgnoreCase(Constants.DRIVER_REACHED)) {
+                String notify = "The driver for your trip from " + source + " to " + destination + " on " + date + " at " + time + " is waiting for you.";
+                sendNotification(getString(R.string.DRIVER_REACHED), "Message from Vigo", notify, 0);
+            } else if (message.equalsIgnoreCase(Constants.TRIP_BEGAN_VERIFY)) {
+                String notify = "Please verify that your trip from " + source + " to " + destination + " on " + date + " at " + time + " has started";
+                sendNotification(getString(R.string.TRIP_BEGAN_VERIFY), "Message from Vigo", notify, tripId);
+            } else if (message.equalsIgnoreCase(Constants.CONTRACTOR_CANCELLED)) {
+                String notify = "Your trip from " + source + " to " + destination + " on " + date + " at " + time + " has been cancelled by the contractor." +
+                        " We apologize for the convenience caused.";
+                sendNotification("Trip Cancelled : Expand to view details", "Message from Vigo", notify, 0);
+            }
         }
     }
     // [END receive_message]

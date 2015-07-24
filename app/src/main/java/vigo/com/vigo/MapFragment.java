@@ -1,8 +1,11 @@
 package vigo.com.vigo;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -39,7 +42,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -127,6 +133,9 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
         }
     };
     private Typeface mButtonFont;
+    private List<Address> addressList;
+    private ProgressDialog mDialog;
+    private Thread myLocationThread;
 
     public static void hideSoftKeyboard(Activity activity) {
         InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -170,6 +179,7 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
         mNowButton.setTypeface(mButtonFont);
         mMap.onCreate(savedInstanceState);
         googleMap = mMap.getMap();
+        googleMap.setMyLocationEnabled(true);
         mGoogleApiClient = new GoogleApiClient
                 .Builder(mActivity)
                 .addApi(Places.GEO_DATA_API)
@@ -189,61 +199,84 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
         mSearchBox.setHint("Choose Pick Up Point");
         SOURCE_CHOSEN = false;
 
+        googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                mDialog = new ProgressDialog(mActivity);
+                mDialog.setMessage("Fetching");
+                if (mDialog != null)
+                    mDialog.show();
+                myLocationThread.run();
+                return false;
+            }
+        });
+        myLocationThread = new Thread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        Geocoder geocoder = new Geocoder(mActivity, Locale.ENGLISH);
+                        try {
+                            StringBuilder string = new StringBuilder("");
+                            if (googleMap.getMyLocation() != null) {
+                                addressList = geocoder.getFromLocation(googleMap.getMyLocation().getLatitude(), googleMap.getMyLocation().getLongitude(), 1);
+                                for (int i = 0; i < addressList.get(0).getMaxAddressLineIndex(); i++) {
+                                    string.append(addressList.get(0).getAddressLine(i) + " ");
+                                }
+
+                            } else {
+                                Toast.makeText(mActivity, R.string.location_not_available, Toast.LENGTH_SHORT).show();
+                            }
+                            onLocationFetched(string.toString());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+        );
         return rootView;
     }
-    //will implement later if required
-    /*private class GetCurrentLocation extends AsyncTask<String, String, String>{
 
-        private ProgressDialog mDialog;
-        private List<Address> addressList;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mDialog = new ProgressDialog(mActivity);
-            mDialog.setMessage("Fetching");
-            if (mDialog != null)
-                mDialog.show();
+    public void onLocationFetched(String address) {
+        if (mDialog.isShowing()) {
+            mDialog.dismiss();
+        }
+        if (!TextUtils.isEmpty(address)) {
             if (googleMap.getMyLocation() != null) {
                 searchLatlng = new LatLng(googleMap.getMyLocation().getLatitude(), googleMap.getMyLocation().getLongitude());
                 final CameraPosition cameraPosition = new CameraPosition.Builder()
                         .target(new LatLng(googleMap.getMyLocation().getLatitude(), googleMap.getMyLocation().getLongitude()))
                         .tilt(70).zoom(18f).build();
+                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             }
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            Geocoder geocoder = new Geocoder(mActivity, Locale.ENGLISH);
-            try {
-                addressList = geocoder.getFromLocation(googleMap.getMyLocation().getLatitude(), googleMap.getMyLocation().getLongitude(), 1);
-                final StringBuilder string = new StringBuilder("");
-                for (int i = 0; i < addressList.get(0).getMaxAddressLineIndex(); i++) {
-                    string.append(addressList.get(0).getAddressLine(i));
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-            @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-                if (mDialog.isShowing()) {
-                    mDialog.dismiss();
-                }
-                if (SOURCE_CHOSEN == false) {
+            if (SOURCE_CHOSEN == false) {
+                if (address.contains("Dadri") || address.contains("Noida") || address.contains("Greater Noida") || address.contains("Gautam Buddha Nagar")) {
                     argumentsBooking.putString(Constants.SOURCE_STRING, addressList.get(0).getSubLocality());
-                } else if (DESTINATION_CHOSEN == false) {
-
-                    argumentsBooking.putString(Constants.DEST_STRING, addressList.get(0).getSubLocality());
+                    mSearchBox.setText(address);
+                    if (mMarkerImage.getVisibility() == View.INVISIBLE)
+                        mMarkerImage.setVisibility(View.VISIBLE);
+                } else {
+                    if (SOURCE_CHOSEN == false) {
+                        Toast.makeText(mActivity, "Currently we only have pick-ups from Noida, Greater Noida and Dadri", Toast.LENGTH_SHORT).show();
+                        mSearchBox.setText("");
+                    }
+                    userSearch.put(Constants.CUSTOMER_ID, pref.getString(Constants.AUTH_TOKEN, ""));
+                    userSearch.put(Constants.GENDER, pref.getString(Constants.GENDER, ""));
+                    userSearch.put(Constants.SHARE_REG_ID, pref.getString(Constants.GCM_REG_ID, ""));
+                    userSearch.put(Constants.USER_EMAIL, pref.getString(Constants.USER_EMAIL, ""));
+                    userSearch.put("searched_for_name", addressList.get(0).getFeatureName());
+                    userSearch.put("searched_for_address", address);
+                    mixPanel.trackMap("User Searches", userSearch);
                 }
+            } else if (DESTINATION_CHOSEN == false) {
+                destString = address;
+                argumentsBooking.putString(Constants.DEST_STRING, addressList.get(0).getSubLocality());
+                mSearchBox.setText(address);
                 if (mMarkerImage.getVisibility() == View.INVISIBLE)
                     mMarkerImage.setVisibility(View.VISIBLE);
+            }
+
         }
-    }*/
+    }
 
     @Override
     public void onStart() {
@@ -358,27 +391,26 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
                 mConfirmButton.setVisibility(View.VISIBLE);
                 break;
             case R.id.confirm_button:
+                if (!TextUtils.isEmpty(mSearchBox.getText().toString())) {
 
+                    if (SOURCE_CHOSEN == false) {
+                        SOURCE_CHOSEN = true;
+                        argumentsBooking.putDouble(Constants.SOURCE_LAT, searchLatlng.latitude);
+                        argumentsBooking.putDouble(Constants.SOURCE_LON, searchLatlng.longitude);
+                        mSearchBox.setHint("Chose Destination");
+                        mConfirmButton.setVisibility(View.GONE);
+                    } else if (DESTINATION_CHOSEN == false) {
+                        DESTINATION_CHOSEN = true;
+                        mConfirmButton.setVisibility(View.GONE);
+                        Toast.makeText(mActivity, "Please choose Now or Later according to preference", Toast.LENGTH_SHORT).show();
+                        mSearchBox.setHint("Please choose Now or Later according to preference");
+                        //proceed to booking activity
+                        argumentsBooking.putDouble(Constants.DEST_LAT, searchLatlng.latitude);
+                        argumentsBooking.putDouble(Constants.DEST_LON, searchLatlng.longitude);
 
-                if(SOURCE_CHOSEN==false){
-                    SOURCE_CHOSEN=true;
-                    argumentsBooking.putDouble(Constants.SOURCE_LAT,searchLatlng.latitude);
-                    argumentsBooking.putDouble(Constants.SOURCE_LON,searchLatlng.longitude);
-                    mSearchBox.setHint("Chose Destination");
-                    mConfirmButton.setVisibility(View.GONE);
+                    }
+                    mSearchBox.setText("");
                 }
-                else if(DESTINATION_CHOSEN==false){
-                    DESTINATION_CHOSEN=true;
-                    mConfirmButton.setVisibility(View.GONE);
-                    Toast.makeText(mActivity, "Please choose Now or Later according to preference", Toast.LENGTH_SHORT).show();
-                    mSearchBox.setHint("Please choose Now or Later according to preference");
-                    //proceed to booking activity
-                    argumentsBooking.putDouble(Constants.DEST_LAT,searchLatlng.latitude);
-                    argumentsBooking.putDouble(Constants.DEST_LON,searchLatlng.longitude);
-
-                }
-                mSearchBox.setText("");
-
                 break;
         }
     }
