@@ -48,7 +48,7 @@ public class UtilityDialog extends DialogFragment implements View.OnClickListene
             case R.id.confirm:
                 dismiss();
                 if (fragment != null && fragment instanceof UtilityInterface) {
-                    UtilityInterface utilityInterface = (UtilityInterface) mActivity;
+                    UtilityInterface utilityInterface = (UtilityInterface) fragment;
                     utilityInterface.confirmUtility();
                 } else if (mActivity instanceof UtilityInterface) {
                     UtilityInterface utilityInterface = (UtilityInterface) mActivity;

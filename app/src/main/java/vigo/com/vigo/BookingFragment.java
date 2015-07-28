@@ -524,14 +524,24 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
                         if (result.contains("false")) {
                             Toast.makeText(mActivity, R.string.booking_successful, Toast.LENGTH_SHORT).show();
                             UtilityDialog dialog = UtilityDialog.getInstance(mActivity.getString(R.string.booking_confirmed));
+                            dialog.setTargetFragment(BookingFragment.this, 0);
                             dialog.setCancelable(true);
-                            dialog.show(mActivity.getSupportFragmentManager(), "UtilityDialog");
+                            dialog.show(BookingFragment.this.getChildFragmentManager(), "UtilityDialog");
+                        } else if (result.contains("true")) {
+                            Toast.makeText(mActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show();
+                            MapFragment mapFragment = new MapFragment();
+                            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                            transaction.setCustomAnimations(R.anim.right_in, R.anim.left_out);
+                            transaction.replace(R.id.maps_fragment, mapFragment);
+                            transaction.addToBackStack(null);
+                            transaction.commit();
                         }
                     }
 
                     @Override
                     public void failure(RetrofitError error) {
                         error.printStackTrace();
+                        Toast.makeText(mActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show();
                     }
                 }
         );

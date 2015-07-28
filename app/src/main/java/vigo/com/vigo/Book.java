@@ -16,6 +16,8 @@ public class Book implements Serializable {
     String customer_id;
     String status;
     String driver_id;
+    String driver_name;
+    String driver_contact;
     String vehicle_id;
     String source_lat;
     String source_lng;

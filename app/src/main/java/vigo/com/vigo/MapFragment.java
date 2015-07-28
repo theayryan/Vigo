@@ -52,8 +52,8 @@ import java.util.Map;
  * Created by ayushb on 19/6/15.
  */
 public class MapFragment extends Fragment implements View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-    private static boolean SOURCE_CHOSEN = false;
-    private static boolean DESTINATION_CHOSEN = false;
+    private boolean SOURCE_CHOSEN = false;
+    private boolean DESTINATION_CHOSEN = false;
     private MapView mMap;
     private GoogleMap googleMap;
     private TextView mLaterButton;
@@ -103,6 +103,9 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
                         if (SOURCE_CHOSEN == false) {
                             Toast.makeText(mActivity, "Currently we only have pick-ups from Noida, Greater Noida and Dadri", Toast.LENGTH_SHORT).show();
                             mSearchBox.setText("");
+                        }
+                        if (mConfirmButton.getVisibility() == View.VISIBLE) {
+                            mConfirmButton.setVisibility(View.GONE);
                         }
                         userSearch.put(Constants.CUSTOMER_ID, pref.getString(Constants.AUTH_TOKEN, ""));
                         userSearch.put(Constants.GENDER, pref.getString(Constants.GENDER, ""));
@@ -252,12 +255,18 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
                 if (address.contains("Dadri") || address.contains("Noida") || address.contains("Greater Noida") || address.contains("Gautam Buddha Nagar")) {
                     argumentsBooking.putString(Constants.SOURCE_STRING, addressList.get(0).getSubLocality());
                     mSearchBox.setText(address);
+                    if (mConfirmButton.getVisibility() == View.GONE) {
+                        mConfirmButton.setVisibility(View.VISIBLE);
+                    }
                     if (mMarkerImage.getVisibility() == View.INVISIBLE)
                         mMarkerImage.setVisibility(View.VISIBLE);
                 } else {
                     if (SOURCE_CHOSEN == false) {
                         Toast.makeText(mActivity, "Currently we only have pick-ups from Noida, Greater Noida and Dadri", Toast.LENGTH_SHORT).show();
                         mSearchBox.setText("");
+                    }
+                    if (mConfirmButton.getVisibility() == View.VISIBLE) {
+                        mConfirmButton.setVisibility(View.GONE);
                     }
                     userSearch.put(Constants.CUSTOMER_ID, pref.getString(Constants.AUTH_TOKEN, ""));
                     userSearch.put(Constants.GENDER, pref.getString(Constants.GENDER, ""));
@@ -271,6 +280,9 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
                 destString = address;
                 argumentsBooking.putString(Constants.DEST_STRING, addressList.get(0).getSubLocality());
                 mSearchBox.setText(address);
+                if (mConfirmButton.getVisibility() == View.GONE) {
+                    mConfirmButton.setVisibility(View.VISIBLE);
+                }
                 if (mMarkerImage.getVisibility() == View.INVISIBLE)
                     mMarkerImage.setVisibility(View.VISIBLE);
             }

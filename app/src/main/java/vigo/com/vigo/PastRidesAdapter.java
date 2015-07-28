@@ -57,7 +57,9 @@ public class PastRidesAdapter extends ArrayAdapter<Book> {
                 ShowInvoiceDialog dialog = ShowInvoiceDialog.getInstance(
                         Integer.toString(objects.get(position).fare),
                         objects.get(position).distance,
-                        objects.get(position).time_taken
+                        objects.get(position).time_taken,
+                        objects.get(position).driver_name,
+                        objects.get(position).driver_contact
                 );
                 dialog.setCancelable(true);
                 dialog.show(activity.get().getSupportFragmentManager(), "ShowInvoiceDialog");
@@ -65,8 +67,8 @@ public class PastRidesAdapter extends ArrayAdapter<Book> {
         });
         String time = objects.get(position).time;
         Calendar mydate = Calendar.getInstance();
-        mydate.setTimeInMillis((long) (Integer.getInteger(time, 0) * 1000));
-        dateTV.setText(mydate.get(Calendar.DAY_OF_MONTH) + "/" + mydate.get(Calendar.MONTH) + "/" + mydate.get(Calendar.YEAR));
+        mydate.setTimeInMillis(Long.parseLong(time) * 1000);
+        dateTV.setText(mydate.get(Calendar.DAY_OF_MONTH) + "/" + (mydate.get(Calendar.MONTH) + 1) + "/" + mydate.get(Calendar.YEAR));
         timeTV.setText(mydate.get(Calendar.HOUR_OF_DAY) + ":" + mydate.get(Calendar.MINUTE));
         source.setText(objects.get(position).source);
         destination.setText(objects.get(position).destination);

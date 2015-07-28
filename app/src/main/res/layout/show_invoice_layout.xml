@@ -30,7 +30,7 @@
                 android:paddingBottom="5dp"
                 android:text="365"
                 android:textColor="@color/appMain"
-                android:textSize="30sp"/>
+                android:textSize="25sp"/>
 
             <TextView
                 android:id="@+id/actual_fare"
@@ -63,7 +63,7 @@
                 android:paddingBottom="5dp"
                 android:text="365"
                 android:textColor="@color/appMain"
-                android:textSize="30sp"/>
+                android:textSize="25sp"/>
 
             <TextView
                 android:id="@+id/distance_given"
@@ -98,19 +98,17 @@
             <TextView
                 android:id="@+id/estimated_time_value"
                 android:layout_width="wrap_content"
-
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="2dip"
-                android:gravity="right"
+                android:gravity="center"
                 android:paddingBottom="5dp"
-                android:text="365"
+                android:text="1 Hour 56 Mins"
                 android:textColor="@color/appMain"
-                android:textSize="30sp"/>
+                android:textSize="25sp"/>
 
             <TextView
                 android:id="@+id/estimated_time"
                 android:layout_width="wrap_content"
-
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="2dip"
                 android:gravity="center"
@@ -123,6 +121,73 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/driver_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:id="@+id/driver_details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="2dip"
+            android:gravity="center"
+            android:paddingBottom="5dp"
+            android:text="Driver Details"
+            android:textColor="@color/appMain"
+            android:textSize="25sp"
+            android:visibility="visible"/>
+
+
+        <TextView
+            android:id="@+id/not_allocated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="2dip"
+            android:gravity="center"
+            android:paddingBottom="5dp"
+            android:text="Not Allocated"
+            android:textColor="@color/appMain"
+            android:textSize="16sp"/>
+
+        <LinearLayout
+            android:id="@+id/driver_detail_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <TextView
+                android:id="@+id/driver_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dip"
+                android:gravity="center"
+                android:paddingBottom="5dp"
+                android:text="Name: Rajpal Yadav"
+                android:textColor="@color/appMain"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/driver_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dip"
+                android:gravity="center"
+                android:paddingBottom="5dp"
+                android:text="Number: 9630740286"
+                android:textColor="@color/appMain"
+                android:textSize="16sp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"

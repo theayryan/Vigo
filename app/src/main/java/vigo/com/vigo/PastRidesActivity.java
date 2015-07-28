@@ -1,6 +1,7 @@
 package vigo.com.vigo;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
@@ -85,5 +86,13 @@ public class PastRidesActivity extends ActionBarActivity {
                     mPDialog.dismiss();
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
+        super.onBackPressed();
     }
 }

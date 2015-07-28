@@ -1,6 +1,7 @@
 package vigo.com.vigo;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
@@ -25,7 +26,6 @@ public class FutureRidesActivity extends ActionBarActivity {
     private VigoApi ridesApi;
     private FutureRidesAdapter mFutureRidesAdapter;
     private TextView mNoRides;
-    private Typeface mBree;
     private SharedPreferences pref;
     private ProgressDialog mPDialog;
     private Typeface mCabin;
@@ -83,5 +83,13 @@ public class FutureRidesActivity extends ActionBarActivity {
                     mPDialog.dismiss();
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
+        super.onBackPressed();
     }
 }

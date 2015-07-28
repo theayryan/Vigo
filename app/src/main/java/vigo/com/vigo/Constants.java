@@ -55,4 +55,6 @@ public class Constants {
     public static final String TEXT = "text";
     public static final String GENDER = "gender";
     public static final String OTP = "/otp";
+    public static final String DRIVER_NAME = "driver_name";
+    public static final String DRIVER_CONTACT = "driver_contact";
 }

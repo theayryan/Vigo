@@ -6,11 +6,14 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -25,12 +28,14 @@ public class ShowInvoiceDialog extends DialogFragment implements View.OnClickLis
     private Typeface mCabin;
     private Typeface mButtonFont;
 
-    public static ShowInvoiceDialog getInstance(String actualFare, String distance, String timeTaken) {
+    public static ShowInvoiceDialog getInstance(String actualFare, String distance, String timeTaken, String driver_name, String driver_contact) {
         instance = new ShowInvoiceDialog();
         Bundle args = new Bundle();
         args.putString(Constants.ACTUAL_FARE, actualFare);
         args.putString(Constants.DISTANCE, distance);
         args.putString(Constants.TIME_TAKEN, timeTaken);
+        args.putString(Constants.DRIVER_NAME, driver_name);
+        args.putString(Constants.DRIVER_CONTACT, driver_contact);
         instance.setArguments(args);
         return instance;
     }
@@ -70,6 +75,20 @@ public class ShowInvoiceDialog extends DialogFragment implements View.OnClickLis
         TextView distanceValue = (TextView) rootView.findViewById(R.id.distance_value);
         TextView timeTaken = (TextView) rootView.findViewById(R.id.estimated_time);
         TextView timeTakenValue = (TextView) rootView.findViewById(R.id.estimated_time_value);
+        TextView driverDetails = (TextView) rootView.findViewById(R.id.driver_details);
+        TextView driverName = (TextView) rootView.findViewById(R.id.driver_name);
+        TextView driverNumber = (TextView) rootView.findViewById(R.id.driver_details);
+        TextView notAllocated = (TextView) rootView.findViewById(R.id.not_allocated);
+        LinearLayout driverDetailsLayout = (LinearLayout) rootView.findViewById(R.id.driver_detail_layout);
+        LinearLayout driverDetail = (LinearLayout) rootView.findViewById(R.id.driver_layout);
+        Fragment parent = getTargetFragment();
+
+        if (parent != null) {
+            driverDetail.setVisibility(View.GONE);
+        } else {
+            driverDetail.setVisibility(View.VISIBLE);
+        }
+
         Button confirm = (Button) rootView.findViewById(R.id.confirm);
 
 
@@ -82,7 +101,11 @@ public class ShowInvoiceDialog extends DialogFragment implements View.OnClickLis
         distance.setTypeface(mCabin);
         timeTaken.setTypeface(mCabin);
         confirm.setTypeface(mButtonFont);
+        driverDetails.setTypeface(mCabin);
 
+        notAllocated.setTypeface(mComfortaa);
+        driverNumber.setTypeface(mComfortaa);
+        driverName.setTypeface(mComfortaa);
         actualFareValue.setTypeface(mComfortaa);
         distanceValue.setTypeface(mComfortaa);
         timeTakenValue.setTypeface(mComfortaa);
@@ -90,9 +113,17 @@ public class ShowInvoiceDialog extends DialogFragment implements View.OnClickLis
         Bundle args = getArguments();
 
         actualFareValue.setText(args.getString(Constants.ACTUAL_FARE));
-        distanceValue.setText(args.getString(Constants.DISTANCE));
+        distanceValue.setText(args.getString(Constants.DISTANCE) + " Kms");
         timeTakenValue.setText(args.getString(Constants.TIME_TAKEN));
-
+        if (!TextUtils.isEmpty(args.getString(Constants.DRIVER_NAME))) {
+            notAllocated.setVisibility(View.GONE);
+            driverDetailsLayout.setVisibility(View.VISIBLE);
+            driverName.setText(args.getString(Constants.DRIVER_NAME));
+            driverNumber.setText(args.getString(Constants.DRIVER_CONTACT));
+        } else {
+            notAllocated.setVisibility(View.VISIBLE);
+            driverDetailsLayout.setVisibility(View.GONE);
+        }
 
         return rootView;
     }

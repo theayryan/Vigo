@@ -79,7 +79,7 @@ public class RideShareOptions extends Fragment implements View.OnClickListener, 
                     public void success(RidesClass ridesClass, Response response) {
                         if (ridesClass.ride != null && ridesClass.ride.size() > 0) {
                             ridesOption = ridesClass.ride;
-                            RidesShareAdapter ridesShareAdapter = new RidesShareAdapter(mActivity, ridesClass.ride, mActivity);
+                            RidesShareAdapter ridesShareAdapter = new RidesShareAdapter(mActivity, ridesClass.ride, mActivity, RideShareOptions.this);
                             mRidesList.setAdapter(ridesShareAdapter);
                         }
                     }

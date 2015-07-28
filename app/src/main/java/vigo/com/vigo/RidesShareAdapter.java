@@ -24,19 +24,21 @@ public class RidesShareAdapter extends ArrayAdapter<Book> {
     private final WeakReference<FragmentActivity> activity;
     private final Typeface mComfortaa;
     private final Typeface mCabin;
+    private final RideShareOptions parentFragment;
     WeakReference<Context> context;
 
-    public RidesShareAdapter(Context context, List<Book> objects, FragmentActivity activity) {
+    public RidesShareAdapter(Context context, List<Book> objects, FragmentActivity activity, RideShareOptions fragment) {
         super(context, R.layout.list_item, objects);
         this.context = new WeakReference<Context>(context);
         this.objects = objects;
+        this.parentFragment = fragment;
         this.activity = new WeakReference<FragmentActivity>(activity);
         mCabin = Typeface.createFromAsset(activity.getAssets(), "fonts/Cabin-Regular.ttf");
         mComfortaa = Typeface.createFromAsset(activity.getAssets(), "fonts/Comfortaa-Regular.ttf");
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, final ViewGroup parent) {
         if (convertView == null) {
             // inflate the layout
             LayoutInflater inflater = activity.get().getLayoutInflater();
@@ -58,8 +60,10 @@ public class RidesShareAdapter extends ArrayAdapter<Book> {
                 ShowInvoiceDialog dialog = ShowInvoiceDialog.getInstance(
                         Integer.toString(objects.get(position).fare),
                         objects.get(position).distance,
-                        objects.get(position).time_taken
-                );
+                        objects.get(position).time_taken,
+                        objects.get(position).driver_name,
+                        objects.get(position).driver_contact);
+                dialog.setTargetFragment(parentFragment, 0);
                 dialog.setCancelable(true);
                 dialog.show(activity.get().getSupportFragmentManager(), "ShowInvoiceDialog");
             }
@@ -67,8 +71,8 @@ public class RidesShareAdapter extends ArrayAdapter<Book> {
         //String date = objects.get(position).date;
         String time = objects.get(position).time;
         Calendar mydate = Calendar.getInstance();
-        mydate.setTimeInMillis((long) (Integer.getInteger(time, 0) * 1000));
-        dateTV.setText(mydate.get(Calendar.DAY_OF_MONTH) + "/" + mydate.get(Calendar.MONTH) + "/" + mydate.get(Calendar.YEAR));
+        mydate.setTimeInMillis(Long.parseLong(time) * 1000);
+        dateTV.setText(mydate.get(Calendar.DAY_OF_MONTH) + "/" + (mydate.get(Calendar.MONTH) + 1) + "/" + mydate.get(Calendar.YEAR));
         timeTV.setText(mydate.get(Calendar.HOUR_OF_DAY) + ":" + mydate.get(Calendar.MINUTE));
         source.setText(objects.get(position).source);
         destination.setText(objects.get(position).destination);
