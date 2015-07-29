@@ -68,7 +68,7 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
         mComfortaa = Typeface.createFromAsset(getAssets(), "fonts/Comfortaa-Regular.ttf");
         mUserName.setTypeface(mCabin);
         LinearLayout mVerify = (LinearLayout) findViewById(R.id.verify);
-        if (!preferences.getBoolean(Constants.OTP, false)) {
+        if (preferences.getBoolean(Constants.OTP, false)) {
 
             mVerify.setOnClickListener(new View.OnClickListener() {
                 @Override

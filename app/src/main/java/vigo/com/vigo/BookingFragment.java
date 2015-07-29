@@ -19,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,7 +48,7 @@ import retrofit.client.Response;
 /**
  * Created by ayushb on 22/6/15.
  */
-public class BookingFragment extends Fragment implements View.OnClickListener, InvoiceDialog.InvoiceInterface, UtilityDialog.UtilityInterface, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
+public class BookingFragment extends Fragment implements ModeOfTransportDialog.ChooseVehicleMode, View.OnClickListener, InvoiceDialog.InvoiceInterface, UtilityDialog.UtilityInterface, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
     public static final String DATEPICKER_TAG = "datepicker";
     public static final String TIMEPICKER_TAG = "timepicker";
@@ -74,7 +73,6 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
     private VigoApi bookApi;
     private Bundle argument;
     private TextView mModeTransport;
-    private RadioGroup mGroup;
     private InvoiceDialog invoiceDialog;
     private String durationValue;
     private int distanceValue;
@@ -84,6 +82,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
     private ImageView mBack;
     private Typeface mButtonFont;
     private Typeface mCabin;
+    private String autoMode;
 
     public void showProgressDialog() {
         if (mPDialog == null) {
@@ -109,7 +108,6 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
         bookApi = restAdapter.create(VigoApi.class);
         argument = this.getArguments();
         mBack = (ImageView) rootView.findViewById(R.id.back_button_image);
-        mGroup = (RadioGroup) rootView.findViewById(R.id.radiogroup);
         mName = (TextView) rootView.findViewById(R.id.name);
         mPickUpPoint = (TextView) rootView.findViewById(R.id.pickup_point);
         mDropPoint = (TextView) rootView.findViewById(R.id.drop_point);
@@ -140,9 +138,15 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
         mBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActivity.onBackPressed();
+                MapFragment shareFragment = new MapFragment();
+                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                transaction.setCustomAnimations(R.anim.right_in, R.anim.left_out);
+                transaction.replace(R.id.maps_fragment, shareFragment);
+                transaction.addToBackStack(null);
+                transaction.remove(BookingFragment.this).commit();
             }
         });
+
         mModeTransport.setTypeface(mCabin);
 
 
@@ -161,8 +165,8 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
         if (!TextUtils.isEmpty(argument.getString(Constants.DEST_STRING)))
             mDropPoint.setText(argument.getString(Constants.DEST_STRING));
         if (argument.getBoolean(Constants.NOW)) {
-            long time30 = System.currentTimeMillis() + 1000 * 60 * 30;
-            java.util.Date date1 = new java.util.Date(time30);
+            long timeToCab = System.currentTimeMillis() + (argument.getInt(Constants.TIME_TAKEN) * 1000);
+            java.util.Date date1 = new java.util.Date(timeToCab);
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date1);
             mTimePicker.setText(calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE));
@@ -173,6 +177,15 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
             mDatePicker.setOnClickListener(this);
             mTimePicker.setOnClickListener(this);
         }
+        mModeTransport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ModeOfTransportDialog modeOfTransportDialog = ModeOfTransportDialog.getInstance();
+                modeOfTransportDialog.setTargetFragment(BookingFragment.this, 0);
+                modeOfTransportDialog.setCancelable(false);
+                modeOfTransportDialog.show(getChildFragmentManager(), "ModeOfTransportDialog");
+            }
+        });
         return rootView;
     }
 
@@ -186,6 +199,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
         super.onAttach(activity);
         mActivity = super.getActivity();
     }
+
 
 
     @Override
@@ -240,7 +254,6 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
         if (mPDialog.isShowing()) {
             mPDialog.dismiss();
         }
-        String autoMode = getModeofTransport(mGroup.getCheckedRadioButtonId());
         if (TextUtils.isEmpty(autoMode)) {
             Toast.makeText(mActivity, R.string.choose_mode_transport, Toast.LENGTH_LONG).show();
             return;
@@ -273,7 +286,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
         transaction.setCustomAnimations(R.anim.right_in, R.anim.left_out);
         transaction.replace(R.id.maps_fragment, shareFragment);
         transaction.addToBackStack(null);
-        transaction.commit();
+        transaction.remove(BookingFragment.this).commit();
     }
 
     public void sendDistance() {
@@ -431,17 +444,6 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
         );
     }
 
-    private String getModeofTransport(int checkedRadioButtonId) {
-        if (checkedRadioButtonId == R.id.auto)
-            return "Auto";
-        else if (checkedRadioButtonId == R.id.taxi)
-            return "Taxi";
-        else if (checkedRadioButtonId == R.id.bus)
-            return "Bus";
-        else
-            return null;
-    }
-
     public int getTime() {
         DateFormat df = new SimpleDateFormat("yyyy/M/d HH:m:s");
         try {
@@ -471,8 +473,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
         if (invoiceDialog.isVisible()) {
             invoiceDialog.dismiss();
         }
-        String mode = getModeofTransport(mGroup.getCheckedRadioButtonId());
-        if (TextUtils.isEmpty(mode)) {
+        if (TextUtils.isEmpty(autoMode)) {
             Toast.makeText(mActivity, R.string.choose_mode_transport, Toast.LENGTH_LONG).show();
             return;
         }
@@ -488,7 +489,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
                 mPickUpPoint.getText().toString(),
                 mDropPoint.getText().toString(),
                 Integer.toString(getTime()),
-                mode,
+                autoMode,
                 pref.getString(Constants.AUTH_TOKEN, ""),
                 Double.toString(argument.getDouble(Constants.SOURCE_LAT)),
                 Double.toString(argument.getDouble(Constants.SOURCE_LON)),
@@ -534,7 +535,7 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
                             transaction.setCustomAnimations(R.anim.right_in, R.anim.left_out);
                             transaction.replace(R.id.maps_fragment, mapFragment);
                             transaction.addToBackStack(null);
-                            transaction.commit();
+                            transaction.remove(BookingFragment.this).commit();
                         }
                     }
 
@@ -557,5 +558,11 @@ public class BookingFragment extends Fragment implements View.OnClickListener, I
         Intent intent = new Intent(mActivity, FutureRidesActivity.class);
         startActivity(intent);
         mActivity.finish();
+    }
+
+    @Override
+    public void chooseVehicleMode(String mode) {
+        autoMode = mode;
+        mModeTransport.setText(mode);
     }
 }

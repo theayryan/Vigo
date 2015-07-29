@@ -49,169 +49,128 @@
         android:background="@color/material_blue_grey_950"
         android:visibility="visible"></View>
 
-    <TextView
-        android:id="@+id/name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="10dip"
-        android:layout_marginLeft="20dip"
-        android:layout_marginRight="20dip"
-        android:layout_marginTop="10dip"
-        android:background="@drawable/booking_section_border"
-        android:hint="@string/name"
-        android:paddingBottom="10dip"
-        android:paddingLeft="5dip"
-        android:paddingRight="5dip"
-        android:paddingTop="10dip"
-        android:textSize="18sp" />
-
-    <TextView
-        android:id="@+id/pickup_point"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="10dip"
-        android:layout_marginLeft="20dip"
-        android:layout_marginRight="20dip"
-        android:layout_marginTop="10dip"
-        android:background="@drawable/booking_section_border"
-        android:hint="@string/pick_up_point"
-        android:paddingBottom="10dip"
-        android:paddingLeft="5dip"
-        android:paddingRight="5dip"
-        android:paddingTop="10dip"
-        android:textSize="18sp" />
-
-    <TextView
-        android:id="@+id/drop_point"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="10dip"
-        android:layout_marginLeft="20dip"
-        android:layout_marginRight="20dip"
-        android:layout_marginTop="10dip"
-        android:background="@drawable/booking_section_border"
-        android:hint="@string/drop_point"
-        android:paddingBottom="10dip"
-        android:paddingLeft="5dip"
-        android:paddingRight="5dip"
-        android:paddingTop="10dip"
-        android:textSize="18sp" />
-
-
-    <TextView
-        android:id="@+id/date"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="10dip"
-        android:layout_marginLeft="20dip"
-        android:layout_marginRight="20dip"
-        android:layout_marginTop="10dip"
-        android:background="@drawable/booking_section_border"
-        android:hint="@string/pickup_date"
-        android:paddingBottom="10dip"
-        android:paddingLeft="5dip"
-        android:paddingRight="5dip"
-        android:paddingTop="10dip"
-        android:textSize="18sp" />
-
-
-    <TextView
-        android:id="@+id/time"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="10dip"
-        android:layout_marginLeft="20dip"
-        android:layout_marginRight="20dip"
-        android:layout_marginTop="10dip"
-        android:background="@drawable/booking_section_border"
-        android:hint="@string/pickup_time"
-        android:paddingBottom="10dip"
-        android:paddingLeft="5dip"
-        android:paddingRight="5dip"
-        android:paddingTop="10dip"
-        android:textSize="18sp" />
-
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:layout_gravity="center_horizontal"
-        android:layout_margin="0dip"
-        android:layout_weight="1"
-        android:gravity="center_horizontal"
+        android:layout_height="wrap_content"
+        android:gravity="center"
         android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dip"
+            android:layout_marginLeft="20dip"
+            android:layout_marginRight="20dip"
+            android:layout_marginTop="10dip"
+            android:background="@drawable/booking_section_border"
+            android:hint="@string/name"
+            android:paddingBottom="10dip"
+            android:paddingLeft="5dip"
+            android:paddingRight="5dip"
+            android:paddingTop="10dip"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/pickup_point"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dip"
+            android:layout_marginLeft="20dip"
+            android:layout_marginRight="20dip"
+            android:layout_marginTop="10dip"
+            android:background="@drawable/booking_section_border"
+            android:hint="@string/pick_up_point"
+            android:paddingBottom="10dip"
+            android:paddingLeft="5dip"
+            android:paddingRight="5dip"
+            android:paddingTop="10dip"
+            android:textSize="18sp"/>
+
+        <TextView
+            android:id="@+id/drop_point"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dip"
+            android:layout_marginLeft="20dip"
+            android:layout_marginRight="20dip"
+            android:layout_marginTop="10dip"
+            android:background="@drawable/booking_section_border"
+            android:hint="@string/drop_point"
+            android:paddingBottom="10dip"
+            android:paddingLeft="5dip"
+            android:paddingRight="5dip"
+            android:paddingTop="10dip"
+            android:textSize="18sp"/>
+
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dip"
+            android:layout_marginLeft="20dip"
+            android:layout_marginRight="20dip"
+            android:layout_marginTop="10dip"
+            android:background="@drawable/booking_section_border"
+            android:hint="@string/pickup_date"
+            android:paddingBottom="10dip"
+            android:paddingLeft="5dip"
+            android:paddingRight="5dip"
+            android:paddingTop="10dip"
+            android:textSize="18sp"/>
+
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dip"
+            android:layout_marginLeft="20dip"
+            android:layout_marginRight="20dip"
+            android:layout_marginTop="10dip"
+            android:background="@drawable/booking_section_border"
+            android:hint="@string/pickup_time"
+            android:paddingBottom="10dip"
+            android:paddingLeft="5dip"
+            android:paddingRight="5dip"
+            android:paddingTop="10dip"
+            android:textSize="18sp"/>
+
 
         <TextView
             android:id="@+id/mode_of_transport"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="5dip"
-            android:text="Please Choose Mode Of Transport"
-            android:textColor="@color/appMain"
-            android:textSize="18sp" />
-
-        <RadioGroup
-            android:id="@+id/radiogroup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dip"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/bus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="20dip"
-                android:background="@drawable/bus_selector"
-
-                android:button="@null"
-                android:enabled="false"
-                android:gravity="center"
-                android:visibility="gone" />
-
-            <RadioButton
-                android:id="@+id/taxi"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-
-                android:layout_marginLeft="10dip"
-
-                android:layout_marginRight="10dip"
-                android:background="@drawable/cab_radio_selector"
-                android:button="@null"
-                android:enabled="false"
-                android:gravity="center"
-                android:visibility="gone" />
-
-            <RadioButton
-                android:id="@+id/auto"
-                android:layout_width="wrap_content"
-
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dip"
-                android:layout_marginRight="20dip"
-                android:background="@drawable/auto_selector"
-
-                android:button="@null"
-                android:gravity="center"
-                android:textSize="20sp" />
-
-        </RadioGroup>
-
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dip"
+            android:layout_marginLeft="20dip"
+            android:layout_marginRight="20dip"
+            android:layout_marginTop="10dip"
+            android:background="@drawable/booking_section_border"
+            android:hint="@string/vehicle_type"
+            android:paddingBottom="10dip"
+            android:paddingLeft="5dip"
+            android:paddingRight="5dip"
+            android:paddingTop="10dip"
+            android:textColor="@color/Black"
+            android:textSize="18sp"/>
 
     </LinearLayout>
 
+
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dip"
         android:layout_gravity="bottom"
+        android:layout_weight="1"
         android:gravity="bottom"
         android:orientation="horizontal">
 
@@ -219,7 +178,7 @@
             android:id="@+id/Book"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="bottom"
             android:layout_weight="1"
             android:background="@drawable/booking_button_background"
             android:padding="5dip"
@@ -231,13 +190,15 @@
             android:id="@+id/ride_share"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="bottom"
             android:layout_weight="1"
             android:background="@drawable/booking_button_background"
             android:padding="5dip"
+
             android:text="Ride Share"
             android:textColor="@color/appMainLight"
-            android:textSize="22sp" />
+            android:textSize="22sp"
+            android:visibility="gone"/>
     </LinearLayout>
 
 </LinearLayout>

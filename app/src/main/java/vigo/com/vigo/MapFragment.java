@@ -42,16 +42,27 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+
 /**
  * Created by ayushb on 19/6/15.
  */
-public class MapFragment extends Fragment implements View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MapFragment extends Fragment implements UtilityDialog.UtilityInterface, View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private boolean SOURCE_CHOSEN = false;
     private boolean DESTINATION_CHOSEN = false;
     private MapView mMap;
@@ -78,11 +89,13 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
     private SharedPreferences pref;
     private ResultCallback<PlaceBuffer> mUpdatePlaceDetailsCallback
             = new ResultCallback<PlaceBuffer>() {
+
         @Override
         public void onResult(PlaceBuffer places) {
             if (!places.getStatus().isSuccess()) {
                 Log.e("Error", "Place query did not complete. Error: " +
                         places.getStatus().toString());
+                places.release();
                 return;
             }
             // Selecting the first object buffer.
@@ -96,32 +109,24 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
                 onResult(places);
             }
 
-                if (SOURCE_CHOSEN == false) {
-                    if (address.contains("Dadri") || address.contains("Noida") || address.contains("Greater Noida") || address.contains("Gautam Buddha Nagar")) {
-                        argumentsBooking.putString(Constants.SOURCE_STRING, place.getName().toString());
-                    } else {
-                        if (SOURCE_CHOSEN == false) {
-                            Toast.makeText(mActivity, "Currently we only have pick-ups from Noida, Greater Noida and Dadri", Toast.LENGTH_SHORT).show();
-                            mSearchBox.setText("");
-                        }
-                        if (mConfirmButton.getVisibility() == View.VISIBLE) {
-                            mConfirmButton.setVisibility(View.GONE);
-                        }
-                        userSearch.put(Constants.CUSTOMER_ID, pref.getString(Constants.AUTH_TOKEN, ""));
-                        userSearch.put(Constants.GENDER, pref.getString(Constants.GENDER, ""));
-                        userSearch.put(Constants.SHARE_REG_ID, pref.getString(Constants.GCM_REG_ID, ""));
-                        userSearch.put(Constants.USER_EMAIL, pref.getString(Constants.USER_EMAIL, ""));
-                        userSearch.put("searched_for_name", place.getName());
-                        userSearch.put("searched_for_address", place.getName());
-                        mixPanel.trackMap("User Searches", userSearch);
-                    }
-                } else if (DESTINATION_CHOSEN == false) {
-                    destString = place.getAddress();
-                    argumentsBooking.putString(Constants.DEST_STRING, place.getName().toString());
-                }
-
+            if (SOURCE_CHOSEN == false) {
+                argumentsBooking.putString(Constants.SOURCE_STRING, place.getName().toString());
+            } else if (DESTINATION_CHOSEN == false) {
+                destString = place.getAddress();
+                argumentsBooking.putString(Constants.DEST_STRING, place.getName().toString());
+            }
+            userSearch.put(Constants.CUSTOMER_ID, pref.getString(Constants.AUTH_TOKEN, ""));
+            userSearch.put(Constants.GENDER, pref.getString(Constants.GENDER, ""));
+            userSearch.put(Constants.SHARE_REG_ID, pref.getString(Constants.GCM_REG_ID, ""));
+            userSearch.put(Constants.USER_EMAIL, pref.getString(Constants.USER_EMAIL, ""));
+            userSearch.put("searched_for_name", place.getName());
+            userSearch.put("searched_for_address", place.getName());
+            mixPanel.trackMap("User Searches", userSearch);
+            places.release();
         }
     };
+
+
     private AdapterView.OnItemClickListener mAutocompleteClickListener
             = new AdapterView.OnItemClickListener() {
         @Override
@@ -139,6 +144,9 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
     private List<Address> addressList;
     private ProgressDialog mDialog;
     private Thread myLocationThread;
+    private int distanceValue;
+    private String durationValue;
+    private int duration;
 
     public static void hideSoftKeyboard(Activity activity) {
         InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -205,10 +213,7 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
         googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
             public boolean onMyLocationButtonClick() {
-                mDialog = new ProgressDialog(mActivity);
-                mDialog.setMessage("Fetching");
-                if (mDialog != null)
-                    mDialog.show();
+                showProgressDialog();
                 myLocationThread.run();
                 return false;
             }
@@ -247,35 +252,18 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
             if (googleMap.getMyLocation() != null) {
                 searchLatlng = new LatLng(googleMap.getMyLocation().getLatitude(), googleMap.getMyLocation().getLongitude());
                 final CameraPosition cameraPosition = new CameraPosition.Builder()
-                        .target(new LatLng(googleMap.getMyLocation().getLatitude(), googleMap.getMyLocation().getLongitude()))
+                        .target(searchLatlng)
                         .tilt(70).zoom(18f).build();
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             }
             if (SOURCE_CHOSEN == false) {
-                if (address.contains("Dadri") || address.contains("Noida") || address.contains("Greater Noida") || address.contains("Gautam Buddha Nagar")) {
-                    argumentsBooking.putString(Constants.SOURCE_STRING, addressList.get(0).getSubLocality());
-                    mSearchBox.setText(address);
-                    if (mConfirmButton.getVisibility() == View.GONE) {
-                        mConfirmButton.setVisibility(View.VISIBLE);
-                    }
-                    if (mMarkerImage.getVisibility() == View.INVISIBLE)
-                        mMarkerImage.setVisibility(View.VISIBLE);
-                } else {
-                    if (SOURCE_CHOSEN == false) {
-                        Toast.makeText(mActivity, "Currently we only have pick-ups from Noida, Greater Noida and Dadri", Toast.LENGTH_SHORT).show();
-                        mSearchBox.setText("");
-                    }
-                    if (mConfirmButton.getVisibility() == View.VISIBLE) {
-                        mConfirmButton.setVisibility(View.GONE);
-                    }
-                    userSearch.put(Constants.CUSTOMER_ID, pref.getString(Constants.AUTH_TOKEN, ""));
-                    userSearch.put(Constants.GENDER, pref.getString(Constants.GENDER, ""));
-                    userSearch.put(Constants.SHARE_REG_ID, pref.getString(Constants.GCM_REG_ID, ""));
-                    userSearch.put(Constants.USER_EMAIL, pref.getString(Constants.USER_EMAIL, ""));
-                    userSearch.put("searched_for_name", addressList.get(0).getFeatureName());
-                    userSearch.put("searched_for_address", address);
-                    mixPanel.trackMap("User Searches", userSearch);
+                argumentsBooking.putString(Constants.SOURCE_STRING, addressList.get(0).getSubLocality());
+                mSearchBox.setText(address);
+                if (mConfirmButton.getVisibility() == View.GONE) {
+                    mConfirmButton.setVisibility(View.VISIBLE);
                 }
+                if (mMarkerImage.getVisibility() == View.INVISIBLE)
+                    mMarkerImage.setVisibility(View.VISIBLE);
             } else if (DESTINATION_CHOSEN == false) {
                 destString = address;
                 argumentsBooking.putString(Constants.DEST_STRING, addressList.get(0).getSubLocality());
@@ -286,9 +274,16 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
                 if (mMarkerImage.getVisibility() == View.INVISIBLE)
                     mMarkerImage.setVisibility(View.VISIBLE);
             }
-
+            userSearch.put(Constants.CUSTOMER_ID, pref.getString(Constants.AUTH_TOKEN, ""));
+            userSearch.put(Constants.GENDER, pref.getString(Constants.GENDER, ""));
+            userSearch.put(Constants.SHARE_REG_ID, pref.getString(Constants.GCM_REG_ID, ""));
+            userSearch.put(Constants.USER_EMAIL, pref.getString(Constants.USER_EMAIL, ""));
+            userSearch.put("searched_for_name", addressList.get(0).getFeatureName());
+            userSearch.put("searched_for_address", address);
+            mixPanel.trackMap("User Searches", userSearch);
         }
     }
+
 
     @Override
     public void onStart() {
@@ -327,6 +322,14 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
         mMap.onSaveInstanceState(outState);
     }
 
+    public void reset() {
+        SOURCE_CHOSEN = false;
+        DESTINATION_CHOSEN = false;
+        mConfirmButton.setVisibility(View.VISIBLE);
+        mMarkerImage.setVisibility(View.GONE);
+        mSearchBox.setHint("Choose Pick Up Point");
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -338,31 +341,114 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
     public void onDestroy() {
         super.onDestroy();
         mMap.onDestroy();
+    }
 
+    public void sendDistance() {
+        RestAdapter restAdapterDistance = new RestAdapter.Builder()
+                .setEndpoint(Constants.DISTANCE_MATRIX)
+                .build();
+        restAdapterDistance.setLogLevel(RestAdapter.LogLevel.FULL);
+        VigoApi distanceApi = restAdapterDistance.create(VigoApi.class);
+        distanceApi.getDistance(
+                Double.toString(Constants.SNU_LAT) + "," + Double.toString(Constants.SNU_LNG),
+                Double.toString(argumentsBooking.getDouble(Constants.SOURCE_LAT)) + "," + Double.toString(argumentsBooking.getDouble(Constants.SOURCE_LON)),
+                (int) (System.currentTimeMillis() / 1000),
+                Constants.GOOGLE_API_KEY,
+                new Callback<Response>() {
+                    @Override
+                    public void success(Response response, Response response2) {
+                        BufferedReader reader = null;
+                        StringBuilder sb = new StringBuilder();
+                        try {
+
+                            reader = new BufferedReader(new InputStreamReader(response.getBody().in()));
+
+                            String line;
+
+                            try {
+                                while ((line = reader.readLine()) != null) {
+                                    sb.append(line);
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        String result = sb.toString();
+                        try {
+                            getTimeToCab(result);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        Log.d("Response", result);
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        error.printStackTrace();
+                        //Toast.makeText(getApplicationContext(),"Some Error Occurred. Please Try Again.",Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+    }
+
+    public void getTimeToCab(String response) throws JSONException {
+        if (mDialog.isShowing()) {
+            mDialog.dismiss();
+        }
+        JSONObject responseJson = new JSONObject(response);
+        JSONArray rows = responseJson.getJSONArray("rows");
+        JSONObject element = rows.getJSONObject(0);
+        JSONArray elementsArray = element.getJSONArray("elements");
+        JSONObject element1 = elementsArray.getJSONObject(0);
+        JSONObject distanceObject = element1.getJSONObject("distance");
+        distanceValue = distanceObject.getInt("value") / 1000;
+        JSONObject durationObject = element1.getJSONObject("duration");
+        durationValue = durationObject.getString("text");
+        duration = durationObject.getInt("value") + 15 * 60;
+        showNowTime();
+    }
+
+    public void showNowTime() {
+        String warningString = "It will take " + getTime() + " for your cab to get ready. We are sorry if any inconvenience is caused.";
+        UtilityDialog utilityDialog = UtilityDialog.getInstance(warningString);
+        utilityDialog.setTargetFragment(MapFragment.this, 0);
+        utilityDialog.setCancelable(true);
+        utilityDialog.show(getChildFragmentManager(), "UtilityDialog");
+    }
+
+    public String getTime() {
+        String time = null;
+        int hours = duration / 3600;
+        int minutes = (duration % 3600) / 60;
+        if (hours > 0) {
+            time = hours + " Hours " + minutes + " Mins";
+        } else {
+            time = minutes + " Mins";
+        }
+        return time;
+    }
+
+    public void showProgressDialog() {
+        if (mDialog == null) {
+            mDialog = new ProgressDialog(mActivity);
+            mDialog.setMessage("Fetching");
+            mDialog.show();
+        } else if (!mDialog.isShowing()) {
+            mDialog.setMessage("Fetching");
+            mDialog.show();
+        }
+        mDialog.setCancelable(true);
     }
 
     @Override
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.now_button:
-
-                if(SOURCE_CHOSEN==true) {
-                    if (DESTINATION_CHOSEN == true) {
-                        argumentsBooking.putBoolean(Constants.NOW, true);
-                        BookingFragment bookingFragment = new BookingFragment();
-                        bookingFragment.setArguments(argumentsBooking);
-                        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-                        transaction.setCustomAnimations(R.anim.right_in, R.anim.left_out);
-                        transaction.replace(R.id.maps_fragment, bookingFragment);
-                        transaction.addToBackStack(null);
-                        transaction.commit();
-                    } else {
-                        Toast.makeText(mActivity, "Please choose your destination", Toast.LENGTH_LONG).show();
-                    }
-                }
-                else {
-                    Toast.makeText(mActivity, "Please choose your pick up point", Toast.LENGTH_LONG).show();
-                }
+                showProgressDialog();
+                sendDistance();
                 break;
             case R.id.later_button:
                 if(SOURCE_CHOSEN==true) {
@@ -374,7 +460,7 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
                         transaction.setCustomAnimations(R.anim.right_in, R.anim.left_out);
                         transaction.replace(R.id.maps_fragment, bookingFragment);
                         transaction.addToBackStack(null);
-                        transaction.commit();
+                        transaction.remove(MapFragment.this).commit();
                     } else {
                         Toast.makeText(mActivity, "Please choose your destination", Toast.LENGTH_LONG).show();
                     }
@@ -443,4 +529,24 @@ public class MapFragment extends Fragment implements View.OnClickListener, Googl
     }
 
 
+    @Override
+    public void confirmUtility() {
+        if (SOURCE_CHOSEN == true) {
+            if (DESTINATION_CHOSEN == true) {
+                argumentsBooking.putInt(Constants.TIME_TAKEN, duration);
+                argumentsBooking.putBoolean(Constants.NOW, true);
+                BookingFragment bookingFragment = new BookingFragment();
+                bookingFragment.setArguments(argumentsBooking);
+                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                transaction.setCustomAnimations(R.anim.right_in, R.anim.left_out);
+                transaction.replace(R.id.maps_fragment, bookingFragment);
+                transaction.addToBackStack(null);
+                transaction.remove(MapFragment.this).commit();
+            } else {
+                Toast.makeText(mActivity, "Please choose your destination", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(mActivity, "Please choose your pick up point", Toast.LENGTH_LONG).show();
+        }
+    }
 }

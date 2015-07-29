@@ -57,4 +57,10 @@ public class Constants {
     public static final String OTP = "/otp";
     public static final String DRIVER_NAME = "driver_name";
     public static final String DRIVER_CONTACT = "driver_contact";
+    public static final double SNU_LAT = 28.5263782;
+    public static final double SNU_LNG = 77.5748376;
+    public static final String GO_STRETCH = "GoStretch";
+    public static final String GO_COMPACT = "GoCompact";
+    public static final String GO_AUTO = "GoAuto";
+    public static final String GO_SUPREME = "GoSupreme";
 }

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,15 +75,29 @@ public class UtilityDialog extends DialogFragment implements View.OnClickListene
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.utility_dialog, container, false);
         Button confirm = (Button) rootView.findViewById(R.id.confirm);
+        Button cancel = (Button) rootView.findViewById(R.id.cancel);
         TextView text = (TextView) rootView.findViewById(R.id.utility_text);
 
         confirm.setOnClickListener(this);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    MapFragment fragment = (MapFragment) getTargetFragment();
+                    fragment.reset();
+                } catch (ClassCastException ex) {
+                    Log.e("Exception", "Class Cast Exception");
+                }
+                dismiss();
+            }
+        });
 
         Typeface mCabin = Typeface.createFromAsset(mActivity.getAssets(), "fonts/Cabin-Regular.ttf");
         mButtonFont = Typeface.createFromAsset(mActivity.getAssets(), "fonts/Button_Font.ttf");
 
-        confirm.setTypeface(mCabin);
-        text.setTypeface(mButtonFont);
+        confirm.setTypeface(mButtonFont);
+        cancel.setTypeface(mButtonFont);
+        text.setTypeface(mCabin);
 
         Bundle args = getArguments();
         text.setText(args.getString(Constants.TEXT));

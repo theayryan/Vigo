@@ -90,6 +90,5 @@ public class FutureRidesActivity extends ActionBarActivity {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
-        super.onBackPressed();
     }
 }
