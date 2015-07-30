@@ -69,7 +69,7 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
         mUserName.setTypeface(mCabin);
         LinearLayout mVerify = (LinearLayout) findViewById(R.id.verify);
         if (preferences.getBoolean(Constants.OTP, false)) {
-            mVerify.setVisibility(View.VISIBLE);
+            mVerify.setVisibility(View.GONE);
             mVerify.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -79,7 +79,7 @@ public class MainActivity extends FragmentActivity implements DrawerLayout.Drawe
                 }
             });
         } else {
-            mVerify.setVisibility(View.GONE);
+            mVerify.setVisibility(View.VISIBLE);
         }
         String utilityText = getIntent().getStringExtra(Constants.TEXT);
         tripId = getIntent().getIntExtra(Constants.TRIP_ID, 0);
