@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -55,7 +56,15 @@ public class VerifyActivity extends Activity {
                 .build();
         restAdapter.setLogLevel(RestAdapter.LogLevel.FULL);
         otpApi = restAdapter.create(VigoApi.class);
-        generateOtp();
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                generateOtp();
+            }
+        }, 5000);
+
         mVerify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -116,9 +125,11 @@ public class VerifyActivity extends Activity {
     }
 
     public void generateOtp() {
+        String customer_id = pref.getString(Constants.AUTH_TOKEN, "");
+        String number = pref.getString(Constants.USER_NUMBER, "");
         otpApi.generateOtp(
-                pref.getString(Constants.AUTH_TOKEN, ""),
-                pref.getString(Constants.USER_NUMBER, ""),
+                customer_id,
+                number,
                 new Callback<Response>() {
                     @Override
                     public void success(Response response, Response response2) {

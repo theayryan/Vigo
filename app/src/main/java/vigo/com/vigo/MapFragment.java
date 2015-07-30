@@ -496,7 +496,7 @@ public class MapFragment extends Fragment implements UtilityDialog.UtilityInterf
                         SOURCE_CHOSEN = true;
                         argumentsBooking.putDouble(Constants.SOURCE_LAT, searchLatlng.latitude);
                         argumentsBooking.putDouble(Constants.SOURCE_LON, searchLatlng.longitude);
-                        mSearchBox.setHint("Chose Destination");
+                        mSearchBox.setHint("Choose Destination");
                         mConfirmButton.setVisibility(View.GONE);
                     } else if (DESTINATION_CHOSEN == false) {
                         DESTINATION_CHOSEN = true;

@@ -77,7 +77,7 @@ public class ShowInvoiceDialog extends DialogFragment implements View.OnClickLis
         TextView timeTakenValue = (TextView) rootView.findViewById(R.id.estimated_time_value);
         TextView driverDetails = (TextView) rootView.findViewById(R.id.driver_details);
         TextView driverName = (TextView) rootView.findViewById(R.id.driver_name);
-        TextView driverNumber = (TextView) rootView.findViewById(R.id.driver_details);
+        TextView driverNumber = (TextView) rootView.findViewById(R.id.driver_number);
         TextView notAllocated = (TextView) rootView.findViewById(R.id.not_allocated);
         LinearLayout driverDetailsLayout = (LinearLayout) rootView.findViewById(R.id.driver_detail_layout);
         LinearLayout driverDetail = (LinearLayout) rootView.findViewById(R.id.driver_layout);
