@@ -143,10 +143,11 @@ public interface VigoApi {
             Callback<Response> callback
     );
 
+    @FormUrlEncoded
     @POST(Constants.OTP)
     public void generateOtp(
-            @Query(Constants.CUSTOMER_ID) String customer_id,
-            @Query("contact") String contact,
+            @Field(Constants.CUSTOMER_ID) String customer_id,
+            @Field("contact") String contact,
             Callback<Response> callback
     );
 
