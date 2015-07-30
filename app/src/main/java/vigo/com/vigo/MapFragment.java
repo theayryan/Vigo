@@ -325,8 +325,8 @@ public class MapFragment extends Fragment implements UtilityDialog.UtilityInterf
     public void reset() {
         SOURCE_CHOSEN = false;
         DESTINATION_CHOSEN = false;
-        mConfirmButton.setVisibility(View.VISIBLE);
-        mMarkerImage.setVisibility(View.GONE);
+        //mConfirmButton.setVisibility(View.VISIBLE);
+        mMarkerImage.setVisibility(View.INVISIBLE);
         mSearchBox.setHint("Choose Pick Up Point");
     }
 
@@ -461,6 +461,7 @@ public class MapFragment extends Fragment implements UtilityDialog.UtilityInterf
                         transaction.replace(R.id.maps_fragment, bookingFragment);
                         transaction.addToBackStack(null);
                         transaction.remove(MapFragment.this).commit();
+                        reset();
                     } else {
                         Toast.makeText(mActivity, "Please choose your destination", Toast.LENGTH_LONG).show();
                     }
@@ -542,6 +543,7 @@ public class MapFragment extends Fragment implements UtilityDialog.UtilityInterf
                 transaction.replace(R.id.maps_fragment, bookingFragment);
                 transaction.addToBackStack(null);
                 transaction.remove(MapFragment.this).commit();
+                reset();
             } else {
                 Toast.makeText(mActivity, "Please choose your destination", Toast.LENGTH_LONG).show();
             }

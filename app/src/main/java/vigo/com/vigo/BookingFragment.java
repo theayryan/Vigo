@@ -375,6 +375,7 @@ public class BookingFragment extends Fragment implements ModeOfTransportDialog.C
         durationValue = durationObject.getString("text");
         bookApi.bulkFare(
                 distanceValue + "",
+                autoMode,
                 new Callback<Response>() {
                     @Override
                     public void success(Response response, Response response2) {

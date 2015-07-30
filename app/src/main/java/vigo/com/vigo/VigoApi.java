@@ -113,6 +113,7 @@ public interface VigoApi {
     @POST(Constants.BULK_FARE)
     public void bulkFare(
             @Field(Constants.DISTANCE) String distance,
+            @Field(Constants.TYPE) String type,
             Callback<Response> callback
     );
 
@@ -120,6 +121,7 @@ public interface VigoApi {
     @POST(Constants.SHARE_FARE)
     public void shareFare(
             @Field(Constants.DISTANCE) String distance,
+            @Field(Constants.TYPE) String type,
             Callback<Response> callback
     );
 

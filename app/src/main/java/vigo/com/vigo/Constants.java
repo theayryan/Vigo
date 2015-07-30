@@ -63,4 +63,5 @@ public class Constants {
     public static final String GO_COMPACT = "GoCompact";
     public static final String GO_AUTO = "GoAuto";
     public static final String GO_SUPREME = "GoSupreme";
+    public static final String TYPE = "type";
 }

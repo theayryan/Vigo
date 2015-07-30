@@ -174,6 +174,7 @@ public class RideShareOptions extends Fragment implements View.OnClickListener, 
     public void getRideShareFare() {
         rideShareApi.shareFare(
                 args.distance + "",
+                args.vehical_type,
                 new Callback<Response>() {
 
 
