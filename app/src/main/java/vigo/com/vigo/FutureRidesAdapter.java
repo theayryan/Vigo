@@ -135,7 +135,7 @@ public class FutureRidesAdapter extends ArrayAdapter<Book> {
         String time = objects.get(position).time;
         Calendar mydate = Calendar.getInstance();
         mydate.setTimeInMillis(Long.parseLong(time) * 1000);
-        dateTV.setText(mydate.get(Calendar.DAY_OF_MONTH) + "/" + (mydate.get(Calendar.MONTH) + 1) + "/" + mydate.get(Calendar.YEAR));
+        /*mydate.get(Calendar.DAY_OF_MONTH) + "/" + (mydate.get(Calendar.MONTH) + 1) + "/" + mydate.get(Calendar.YEAR)*/
         timeTV.setText(mydate.get(Calendar.HOUR_OF_DAY) + ":" + mydate.get(Calendar.MINUTE));
         source.setText(objects.get(position).source);
         destination.setText(objects.get(position).destination);
